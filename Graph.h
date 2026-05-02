@@ -11,16 +11,16 @@
 
 class Graph {
     int vertexCount = 0;
-    SinglyLinkedList<Edge> adjacencyList;
+    SinglyLinkedList<Edge>* adjacencyList;
     Array<Array<int>> adjacencyMatrix;
     public:
 
     //inicjalizacja grafy
-    Graph(int n) {
+    explicit Graph(int n) {
         this->vertexCount = n;
 
         //reprezentacja listowa
-        adjacencyList = SinglyLinkedList<Edge>();
+        adjacencyList = new SinglyLinkedList<Edge>[vertexCount];
 
         // reprezentacja macierzowa
         adjacencyMatrix = Array<Array<int>>(vertexCount);
@@ -34,9 +34,19 @@ class Graph {
         }
     }
 
-    void addEdge(int dir, int wieght) {
+    void addEdge(int u, int v, int weight) {
 
+        if (weight < 0) {
+            throw std::invalid_argument("weight cannot be negative");
+        }
+
+        auto newEdge = new Edge(v, weight);
+
+        adjacencyList[u].push(*newEdge);
+
+        adjacencyMatrix[u][v] = weight;
     }
+
 
 };
 #endif //GRAPH_H
