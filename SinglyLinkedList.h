@@ -115,59 +115,9 @@ public:
 
     //zwraca rozmiar
     int getSize() {return size;}
-
-    //zwraca wartość minimalną listy
-    T findMin() const {
-        if (head == nullptr) {
-            cout << "The list is empty" << endl;
-            return T();
-        }
-        T min = head->data;
-        Node *current = head->next;
-        while (current != nullptr) {
-            if ((current->data) < min) {
-                min = current->data;
-            }
-            current = current->next;
-        }
-        return min;
-    }
-
-    //zwraca wartość maksymalną listy
-    T findMax() const {
-        if (head == nullptr) {
-            cout << "The list is empty" << endl;
-            return T();
-        }
-        T max = head->data;
-        Node *current = head->next;
-        while (current != nullptr) {
-            if (current->data> max) {
-                max = current->data;
-            }
-            current = current->next;
-        }
-        return max;
-    }
-
     //zwraca początek listy
     Node* getHead() {return head;}
-    //ustawia początek listy
-    void setHead(Node* newHead) {head = newHead;}
 
-    //sprawdza czy listy jest posortowana
-    bool isSorted() {
-        Node* current = head;
-
-        while (current != nullptr && current->next != nullptr) {
-            if (current->data > current->next->data) {
-                return false;
-            }
-            current = current->next;
-        }
-
-        return true;
-    }
 
     //dodaje wartość na początek listy
     void push_front(T d) {
@@ -178,6 +128,16 @@ public:
         size++;
     }
 
+    void clear () {
+        Node *current = head;
+        while (current != nullptr) {
+            Node *next = current->next;
+            delete current;
+            current = next;
+        }
+        head = nullptr;
+        size = 0;
+    }
 
 
 };

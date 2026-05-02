@@ -83,40 +83,13 @@ public:
         }
     }
 
-    //Metoda do wyszukiwania maksymalnej wartości w tabeli
-    T findMax() {
-        T max = data[0];
-        for (int i = 1; i < array_size; i++) {
-            if (data[i] > max) {
-                max = data[i];
-            }
-        }
-        return max;
-    }
-
-
-    //Metoda do wyszukiwania minimalnej wartości w tabeli
-    T findMin() {
-        T min = data[0];
-        for (int i = 1; i < array_size; i++) {
-            if (data[i] < min) {
-                min = data[i];
-            }
-        }
-        return min;
-    }
-
     //Metoda zwracająca rozmiar tabeli
     int getSize() {return array_size;}
 
-    // sprawdza czy tabela jest posortowana i zwraca prawdę albo fałsz
-    bool isSorted() {
-        for (int i = 0; i < array_size - 1; i++) {
-            if (data[i] > data[i + 1]) {
-                return false;
-            }
+    void clear() {
+        for (int i = 0; i < array_size; i++) {
+            data[i] = T();
         }
-        return true;
     }
 };
 

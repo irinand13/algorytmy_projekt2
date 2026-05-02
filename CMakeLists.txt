@@ -7,4 +7,5 @@ add_executable(algorytmy_projekt2 main.cpp
         Graph.h
         Graph.h
         Array.h
-        SinglyLinkedList.h)
+        SinglyLinkedList.h
+        Edge.h)
