@@ -12,10 +12,12 @@
 class Graph {
     int vertexCount = 0;
     SinglyLinkedList<Edge>* adjacencyList;
-    Array<Array<int>> adjacencyMatrix;
+    Array<Array<int>> incidencyMatrix;
+    int edgeCount = 0;
     public:
 
-    //inicjalizacja grafy
+    // inicjalizacja grafu
+    // tworzy listę ora
     explicit Graph(int n) {
         this->vertexCount = n;
 
@@ -23,28 +25,44 @@ class Graph {
         adjacencyList = new SinglyLinkedList<Edge>[vertexCount];
 
         // reprezentacja macierzowa
-        adjacencyMatrix = Array<Array<int>>(vertexCount);
+        incidencyMatrix = Array<Array<int>>(vertexCount);
 
         for (int i = 0; i < vertexCount; i++) {
-            adjacencyMatrix[i] = Array<int>(vertexCount);
+            incidencyMatrix[i] = Array<int>(edgeCount);
 
-            for (int j = 0; j < vertexCount; j++) {
-                adjacencyMatrix[i][j] = 0;
+            for (int j = 0; j < edgeCount; j++) {
+                incidencyMatrix[i][j] = 0;
             }
         }
     }
 
-    void addEdge(int u, int v, int weight) {
+    //Metoda dodawania nowej krawędzi
+    // Dodaje krawiędź do listy oraz do macierzy incydencji
+    void addEdgeToList(int u, int v, int weight) {
 
         if (weight < 0) {
             throw std::invalid_argument("weight cannot be negative");
         }
 
-        auto newEdge = new Edge(v, weight);
+        Edge newEdge(v, weight);
 
-        adjacencyList[u].push(*newEdge);
+        adjacencyList[u].push(newEdge);
+    }
 
-        adjacencyMatrix[u][v] = weight;
+    void addToMatrixDirected(int u, int v, int weight) {
+        if (weight < 0) {
+            throw std::invalid_argument("weight cannot be negative");
+        }
+        incidencyMatrix[u][edgeCount] = -1;
+        incidencyMatrix[v][edgeCount] = 1;
+    }
+
+    void addToMatrix(int u, int v, int weight) {
+        if (weight < 0) {
+            throw std::invalid_argument("weight cannot be negative");
+        }
+        incidencyMatrix[u][edgeCount] = 1;
+        incidencyMatrix[v][edgeCount] = 1;
     }
 
 

@@ -51,7 +51,8 @@ build cmake_object_order_depends_target_algorytmy_projekt2: phony || .
 
 build CMakeFiles/algorytmy_projekt2.dir/main.cpp.obj: CXX_COMPILER__algorytmy_projekt2_unscanned_Debug C$:/Users/iraan/CLionProjects/algorytmy_projekt2/main.cpp || cmake_object_order_depends_target_algorytmy_projekt2
   DEP_FILE = CMakeFiles\algorytmy_projekt2.dir\main.cpp.obj.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -fdiagnostics-color=always -Wall -Wextra -Werror
+  INCLUDES = -IC:/Users/iraan/CLionProjects/algorytmy_projekt2/include -IC:/Users/iraan/CLionProjects/algorytmy_projekt2/lib
   OBJECT_DIR = CMakeFiles\algorytmy_projekt2.dir
   OBJECT_FILE_DIR = CMakeFiles\algorytmy_projekt2.dir
 

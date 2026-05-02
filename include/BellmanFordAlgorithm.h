@@ -1,0 +1,8 @@
+//
+// Created by iraan on 02.05.2026.
+//
+
+#ifndef BELLMANFORDSALGORITHM_H
+#define BELLMANFORDSALGORITHM_H
+
+#endif //BELLMANFORDSALGORITHM_H
