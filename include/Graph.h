@@ -4,22 +4,38 @@
 
 #ifndef GRAPH_H
 #define GRAPH_H
-
 #include "Array.h"
-#include "Edge.h"
 #include "SinglyLinkedList.h"
+
+struct Edge {
+    int from;
+    int to;
+    int weight;
+
+    Edge() = default;
+
+    Edge(int u, int v, int weight) {
+        this->from = u;
+        this->to = v;
+        this->weight = weight;
+    }
+};
 
 class Graph {
     int vertexCount = 0;
+    int edgeCount;
+    bool directed;
     SinglyLinkedList<Edge>* adjacencyList;
     Array<Array<int>> incidencyMatrix;
-    int edgeCount = 0;
+
     public:
 
     // inicjalizacja grafu
     // tworzy listę ora
-    explicit Graph(int n) {
+    explicit Graph(int n, bool directed) {
         this->vertexCount = n;
+        this->edgeCount = 0;
+        this->directed = directed;
 
         //reprezentacja listowa
         adjacencyList = new SinglyLinkedList<Edge>[vertexCount];
@@ -38,32 +54,28 @@ class Graph {
 
     //Metoda dodawania nowej krawędzi
     // Dodaje krawiędź do listy oraz do macierzy incydencji
-    void addEdgeToList(int u, int v, int weight) {
+    void addEdge(int u, int v, int weight) {
 
-        if (weight < 0) {
-            throw std::invalid_argument("weight cannot be negative");
-        }
+        if (weight < 0) throw std::invalid_argument("weight cannot be negative");
 
-        Edge newEdge(v, weight);
+        Edge newEdge(u, v, weight);
 
         adjacencyList[u].push(newEdge);
+        if(!directed) {
+            adjacencyList[v].push(newEdge);
+        }
+
+        if (directed) {
+            incidencyMatrix[u][edgeCount] = -1;
+            incidencyMatrix[v][edgeCount] = 1;
+        } else {
+            incidencyMatrix[u][edgeCount] = 1;
+            incidencyMatrix[v][edgeCount] = 1;
+        }
+
+        edgeCount++;
     }
 
-    void addToMatrixDirected(int u, int v, int weight) {
-        if (weight < 0) {
-            throw std::invalid_argument("weight cannot be negative");
-        }
-        incidencyMatrix[u][edgeCount] = -1;
-        incidencyMatrix[v][edgeCount] = 1;
-    }
-
-    void addToMatrix(int u, int v, int weight) {
-        if (weight < 0) {
-            throw std::invalid_argument("weight cannot be negative");
-        }
-        incidencyMatrix[u][edgeCount] = 1;
-        incidencyMatrix[v][edgeCount] = 1;
-    }
 
 
 };
