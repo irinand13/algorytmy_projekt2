@@ -8,27 +8,7 @@
 #include "SinglyLinkedList.h"
 
 //Reprezentacja krawędzi
-struct Edge {
-    int from;
-    int to;
-    unsigned int weight;
 
-    Edge() = default;
-
-    Edge(int u, int v, int weight) {
-        this->from = u;
-        this->to = v;
-        this->weight = weight;
-    }
-
-    bool operator<(const Edge& other) const {
-        return weight < other.weight;
-    }
-
-    bool operator>(const Edge& other) const {
-        return weight > other.weight;
-    }
-};
 
 
 //Reprezentacja wierzchołka
@@ -36,7 +16,7 @@ struct Vertex {
     int id;
     bool colored;
 
-    Vertex() = default;
+    Vertex() : id(0), colored(false) {}
 
     Vertex(int id, bool colored) {
         this->id = id;
@@ -47,29 +27,37 @@ struct Vertex {
         this->colored = true;
 
     }
+
+};
+
+struct Neighbor {
+    Vertex to;
+    int weight;
 };
 
 //Reprezentacja grafu
 class Graph {
-    int vertexCount = 0;
+    int vertexCount;
     int edgeCount;
+    int maxEdgeCount;
     bool directed;
-    Vertex* vertices;
-    SinglyLinkedList<Edge>* adjacencyList;
+
+
+    SinglyLinkedList<Neighbor>* adjacencyList;
     Array<Array<int>> incidencyMatrix;
 
-    public:
 
+    public:
     // inicjalizacja grafu
     // tworzy listę ora
     explicit Graph(int n, bool directed, int maxEdgeCount) {
         this->vertexCount = n;
-
+        this->maxEdgeCount = maxEdgeCount;
         this->edgeCount = 0;
         this->directed = directed;
 
         //reprezentacja listowa
-        adjacencyList = new SinglyLinkedList<Edge>[vertexCount];
+        adjacencyList = new SinglyLinkedList<Neighbor>[vertexCount];
 
         // reprezentacja macierzowa
         incidencyMatrix = Array<Array<int>>(vertexCount);
@@ -83,39 +71,43 @@ class Graph {
         }
     }
 
+
+    ~Graph() {
+        delete[] adjacencyList;
+    }
+    Graph(const Graph& graph) = delete;
+    Graph& operator=(const Graph& graph) = delete;
+    Graph(Graph&& graph) = delete;
+    Graph& operator=(Graph&& graph) = delete;
+
     //Metoda dodawania nowej krawędzi
     // Dodaje krawiędź do listy oraz do macierzy incydencji
-    void addEdge(int u, int v, int weight) {
+    void addEdge(Vertex& u, Vertex& v, int weight) {
+
+        if (edgeCount >= maxEdgeCount) {
+            throw std::out_of_range("too many edges");
+        }
 
         if (weight < 0) throw std::invalid_argument("weight cannot be negative");
 
-        Edge newEdge(u, v, weight);
+        adjacencyList[u.id].push({v, weight});
 
-        adjacencyList[u].push(newEdge);
-        if(!directed) {
-            adjacencyList[v].push(Edge(v, u, weight));
-        }
+        if (!directed)
+            adjacencyList[v.id].push({u, weight});
 
         if (directed) {
-            incidencyMatrix[u][edgeCount] = -1;
-            incidencyMatrix[v][edgeCount] = 1;
+            incidencyMatrix[u.id][edgeCount] = 1;
+            incidencyMatrix[v.id][edgeCount] = -1;
         } else {
-            incidencyMatrix[u][edgeCount] = 1;
-            incidencyMatrix[v][edgeCount] = 1;
+            incidencyMatrix[u.id][edgeCount] = 1;
+            incidencyMatrix[v.id][edgeCount] = 1;
         }
 
         edgeCount++;
     }
 
     int getVertexCount() {return vertexCount;}
-    Vertex& getVertex(int index) { return vertices[index]; }
-
     int getEdgeCount() {return edgeCount;}
-
-    template <typename T>
-    SinglyLinkedList<Edge>& getAdjacencyList() {
-        return *adjacencyList;
-    }
 
 };
 #endif //GRAPH_H

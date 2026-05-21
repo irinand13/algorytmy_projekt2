@@ -91,6 +91,15 @@ namespace KruskalAlgorithm {
         return sortedEdgeList;
     }
 
+    template<class T>
+    Graph findMST(Graph& graph) {
+        auto sortedEdgeList = graph.getAdjacencyList<Edge>();
+        quickSort(sortedEdgeList);
+
+        auto MSTList = SinglyLinkedList<Edge>();
+
+        return ;
+    }
 
 };
 #endif //KRUSKALSALGORITHM_H
