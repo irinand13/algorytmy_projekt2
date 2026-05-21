@@ -11,7 +11,9 @@ add_executable(algorytmy_projekt2 main.cpp
         include/DijkstraAlgorithm.h
         "include/BellmanFordAlgorithm.h"
         "include/FordFulkersonAlgorithm .h"
-        include/PrimAlgorithm.h)
+        include/PrimAlgorithm.h
+        "include/Parameters (1).h"
+        include/GenerateGraph.h)
 
 
 target_include_directories(algorytmy_projekt2 PRIVATE

@@ -4,5 +4,10 @@
 
 #ifndef KRUSKALSALGORITHM_H
 #define KRUSKALSALGORITHM_H
+#include "Graph.h"
+using namespace std;
 
+namespace KruskalAlgorithm {
+
+};
 #endif //KRUSKALSALGORITHM_H

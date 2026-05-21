@@ -6,11 +6,10 @@
 #define GRAPH_H
 #include "Array.h"
 #include "SinglyLinkedList.h"
-
 struct Edge {
     int from;
     int to;
-    int weight;
+    unsigned int weight;
 
     Edge() = default;
 
@@ -21,10 +20,28 @@ struct Edge {
     }
 };
 
+struct Vertex {
+    int id;
+    bool colored;
+
+    Vertex() = default;
+
+    Vertex(int id, bool colored) {
+        this->id = id;
+        this->colored = colored;
+    }
+
+    void setColored() {
+        this->colored = true;
+
+    }
+};
+
 class Graph {
     int vertexCount = 0;
     int edgeCount;
     bool directed;
+    Vertex* vertices;
     SinglyLinkedList<Edge>* adjacencyList;
     Array<Array<int>> incidencyMatrix;
 
@@ -32,8 +49,9 @@ class Graph {
 
     // inicjalizacja grafu
     // tworzy listę ora
-    explicit Graph(int n, bool directed) {
+    explicit Graph(int n, bool directed, int maxEdgeCount) {
         this->vertexCount = n;
+
         this->edgeCount = 0;
         this->directed = directed;
 
@@ -44,9 +62,9 @@ class Graph {
         incidencyMatrix = Array<Array<int>>(vertexCount);
 
         for (int i = 0; i < vertexCount; i++) {
-            incidencyMatrix[i] = Array<int>(edgeCount);
+            incidencyMatrix[i] = Array<int>(maxEdgeCount);
 
-            for (int j = 0; j < edgeCount; j++) {
+            for (int j = 0; j < maxEdgeCount; j++) {
                 incidencyMatrix[i][j] = 0;
             }
         }
@@ -62,7 +80,7 @@ class Graph {
 
         adjacencyList[u].push(newEdge);
         if(!directed) {
-            adjacencyList[v].push(newEdge);
+            adjacencyList[v].push(Edge(v, u, weight));
         }
 
         if (directed) {
@@ -76,7 +94,15 @@ class Graph {
         edgeCount++;
     }
 
+    int getVertexCount() {return vertexCount;}
+    Vertex& getVertex(int index) { return vertices[index]; }
 
+    int getEdgeCount() {return edgeCount;}
+
+    template <typename T>
+    SinglyLinkedList<Edge>& getAdjacencyList(int vertexIndex) {
+        return adjacencyList[vertexIndex];
+    }
 
 };
 #endif //GRAPH_H
