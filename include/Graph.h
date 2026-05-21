@@ -6,6 +6,8 @@
 #define GRAPH_H
 #include "Array.h"
 #include "SinglyLinkedList.h"
+
+//Reprezentacja krawędzi
 struct Edge {
     int from;
     int to;
@@ -18,8 +20,18 @@ struct Edge {
         this->to = v;
         this->weight = weight;
     }
+
+    bool operator<(const Edge& other) const {
+        return weight < other.weight;
+    }
+
+    bool operator>(const Edge& other) const {
+        return weight > other.weight;
+    }
 };
 
+
+//Reprezentacja wierzchołka
 struct Vertex {
     int id;
     bool colored;
@@ -37,6 +49,7 @@ struct Vertex {
     }
 };
 
+//Reprezentacja grafu
 class Graph {
     int vertexCount = 0;
     int edgeCount;
@@ -100,8 +113,8 @@ class Graph {
     int getEdgeCount() {return edgeCount;}
 
     template <typename T>
-    SinglyLinkedList<Edge>& getAdjacencyList(int vertexIndex) {
-        return adjacencyList[vertexIndex];
+    SinglyLinkedList<Edge>& getAdjacencyList() {
+        return *adjacencyList;
     }
 
 };
