@@ -12,7 +12,7 @@ add_executable(algorytmy_projekt2 main.cpp
         "include/BellmanFordAlgorithm.h"
         "include/FordFulkersonAlgorithm .h"
         include/PrimAlgorithm.h
-        "include/Parameters (1).h"
+        "include/Parameters.h"
         include/GenerateGraph.h)
 
 
