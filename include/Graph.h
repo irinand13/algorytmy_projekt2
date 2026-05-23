@@ -8,7 +8,27 @@
 #include "SinglyLinkedList.h"
 
 //Reprezentacja krawędzi
+struct Edge {
+    int from;
+    int to;
+    int weight;
 
+    Edge(int from, int to, int weight) {
+        this->from = from;
+        this->to = to;
+        this->weight = weight;
+    }
+
+
+    bool operator<(const Edge& other) const {
+        return weight < other.weight;
+    }
+
+    bool operator>(const Edge& other) const {
+        return weight > other.weight;
+    }
+
+};
 
 
 //Reprezentacja wierzchołka
@@ -16,23 +36,32 @@ struct Vertex {
     int id;
     bool colored;
 
-    Vertex() : id(0), colored(false) {}
+    Vertex() {
+        id = 0;
+        colored = false;
+    }
 
     Vertex(int id, bool colored) {
         this->id = id;
-        this->colored = colored;
+        this->colored= colored;
     }
 
-    void setColored() {
-        this->colored = true;
-
+    void setColored(bool colored) {
+        this->colored= colored;
     }
+
+
 
 };
 
 struct Neighbor {
     Vertex to;
     int weight;
+
+    Neighbor(Vertex to, int weight) {
+        this->to = to;
+        this->weight = weight;
+    }
 };
 
 //Reprezentacja grafu
@@ -42,7 +71,7 @@ class Graph {
     int maxEdgeCount;
     bool directed;
 
-
+    Vertex *vertices;
     SinglyLinkedList<Neighbor>* adjacencyList;
     Array<Array<int>> incidencyMatrix;
 
@@ -55,6 +84,13 @@ class Graph {
         this->maxEdgeCount = maxEdgeCount;
         this->edgeCount = 0;
         this->directed = directed;
+
+
+        vertices = new Vertex[vertexCount];
+
+        for (int i = 0; i < vertexCount; i++) {
+            vertices[i] = Vertex(i, false);
+        }
 
         //reprezentacja listowa
         adjacencyList = new SinglyLinkedList<Neighbor>[vertexCount];
@@ -74,7 +110,9 @@ class Graph {
 
     ~Graph() {
         delete[] adjacencyList;
+        delete[] vertices;
     }
+
     Graph(const Graph& graph) = delete;
     Graph& operator=(const Graph& graph) = delete;
     Graph(Graph&& graph) = delete;
@@ -106,8 +144,39 @@ class Graph {
         edgeCount++;
     }
 
+
+    void readToEdgeList(SinglyLinkedList<Edge>& list) {
+        for (int i = 0; i < vertexCount; i++) {
+
+            SinglyLinkedList<Neighbor>::Node* current = adjacencyList[i].getHead();
+            while (current != nullptr) {
+                if (directed) {
+                    int from = i;
+                    int to = current->data.to.id;
+                    int weight = current->data.weight;
+                    list.push(Edge(from, to, weight));
+                    current = current->next;
+                } else {
+                    if (i < current->data.to.id) {
+                        int from = i;
+                        int to = current->data.to.id;
+                        int weight = current->data.weight;
+                        list.push(Edge(from, to, weight));
+                    }
+                    current = current->next;
+                }
+            }
+        }
+    }
+
+
+
+
+
     int getVertexCount() {return vertexCount;}
     int getEdgeCount() {return edgeCount;}
+    Vertex getVertex(int i) {return vertices[i];}
+
 
 };
 #endif //GRAPH_H

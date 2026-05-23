@@ -5,6 +5,7 @@
 #ifndef KRUSKALSALGORITHM_H
 #define KRUSKALSALGORITHM_H
 #include "Graph.h"
+#include "Array.h"
 using namespace std;
 
 namespace KruskalAlgorithm {
@@ -83,22 +84,55 @@ namespace KruskalAlgorithm {
         list.head = quickSortRecursive<T>(list.head, list.getSize());
     }
 
+
+
+    //Funkcja zwracająca MST dla podanego grafu
     template<class T>
-    inline SinglyLinkedList<Edge> sortEdgeList(Graph& graph) {
-        auto sortedEdgeList = graph.getAdjacencyList<Edge>();
-        quickSort(sortedEdgeList);
+    Graph *findMST(Graph &graph) {
+        auto sortedEdgeList = SinglyLinkedList<Edge>();
+        graph.readToEdgeList(sortedEdgeList);  // odczytywanie krawędzi oraz wag do listy krawędzi
+        quickSort(sortedEdgeList); //sortowanie krawędzi według wag rosnąco
 
-        return sortedEdgeList;
-    }
+        auto* mst = new Graph(graph.getVertexCount(), false, graph.getVertexCount()-1);
 
-    template<class T>
-    Graph findMST(Graph& graph) {
-        auto sortedEdgeList = graph.getAdjacencyList<Edge>();
-        quickSort(sortedEdgeList);
+        SinglyLinkedList<Edge>::Node* current = sortedEdgeList.getHead();
 
-        auto MSTList = SinglyLinkedList<Edge>();
 
-        return ;
+        //inicjalizacja tablicy, zawierająca "kolory" dla każdej krawędzi
+        int* colors = new int[graph.getVertexCount()];
+        for (int i = 0; i < graph.getVertexCount(); i++) {
+            colors[i] = i;
+        }
+
+        while (current) {
+            //pobiera indeksy wierzchołków należących do danej krawędzi
+            int u = current->data.from;
+            int v = current->data.to;
+
+            //szuka "kolor" w tablicy dla odpowiednich indeksów
+            int colorU = colors[u];
+            int colorV = colors[v];
+
+
+            //Jeżeli "kolory" są różne, zmieniamy kolor 2 wierzchołka
+            if (colorU != colorV) {
+                Vertex vu = graph.getVertex(u);
+                Vertex vv = graph.getVertex(v);
+
+                //dodajemy krawędź do mst
+                mst->addEdge(vu,vv, current->data.weight);
+
+                //zmiana "kolorów" wierzchołków połączonych z 2
+                for (int i = 0; i < graph.getVertexCount(); i++) {
+                    if (colors[i] == colorV) {
+                        colors[i] = colorU;
+                    }
+                }
+            }
+            current = current->next;
+        }
+        delete[] colors;
+        return mst;
     }
 
 };
