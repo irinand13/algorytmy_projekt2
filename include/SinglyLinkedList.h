@@ -120,12 +120,20 @@ public:
 
 
     //dodaje wartość na początek listy
-    void push_front(T d) {
+    void pushFront(T d) {
         Node *newNode = new Node(d);
         newNode->next = head;
 
         head = newNode;
         size++;
+    }
+
+    void popFront() {
+        if (head == nullptr) return;
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+        size--;
     }
 
     void clear () {

@@ -13,7 +13,8 @@ add_executable(algorytmy_projekt2 main.cpp
         "include/FordFulkersonAlgorithm .h"
         include/PrimAlgorithm.h
         "include/Parameters.h"
-        include/GenerateGraph.h)
+        include/GenerateGraph.h
+        include/quickSort.h)
 
 
 target_include_directories(algorytmy_projekt2 PRIVATE

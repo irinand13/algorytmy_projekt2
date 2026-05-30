@@ -50,8 +50,6 @@ struct Vertex {
         this->colored= colored;
     }
 
-
-
 };
 
 struct Neighbor {
@@ -171,11 +169,13 @@ class Graph {
 
 
 
-
-
     int getVertexCount() {return vertexCount;}
     int getEdgeCount() {return edgeCount;}
-    Vertex getVertex(int i) {return vertices[i];}
+    Vertex& getVertex(int i) {return vertices[i];}
+
+    SinglyLinkedList<Neighbor>::Node* getAdjacencyList(int i) {
+        return adjacencyList[i].getHead();
+    }
 
 
 };
