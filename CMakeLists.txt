@@ -14,7 +14,9 @@ add_executable(algorytmy_projekt2 main.cpp
         include/PrimAlgorithm.h
         "include/Parameters.h"
         include/GenerateGraph.h
-        include/quickSort.h)
+        include/quickSort.h
+        include/FileReader.h
+        include/FileWriter.h)
 
 
 target_include_directories(algorytmy_projekt2 PRIVATE

@@ -76,13 +76,11 @@ namespace GenerateGraph {
         for (int i = 0; i < t; i++) {
             if(newAdded == t) break;
 
-            int attempts = 0;
             do {
                 from = verteces[rand() % n];
                 to = verteces[rand() % n];
-                attempts++;
-                if (attempts > 1000) break;
-            } while (from == to || graph->hasEdge(from, to));
+            } while (from == to || graph->hasEdge(from, to) ||
+                 (!directed && graph->hasEdge(to, from)));
 
             int rweight = rand() % weightRange + 1;
 
