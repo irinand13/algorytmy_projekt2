@@ -67,6 +67,7 @@ class Graph {
     int vertexCount;
     int edgeCount;
     int maxEdgeCount;
+    int totalWeight;
     bool directed;
 
     Vertex *vertices;
@@ -81,6 +82,7 @@ class Graph {
         this->vertexCount = n;
         this->maxEdgeCount = maxEdgeCount;
         this->edgeCount = 0;
+        this->totalWeight = 0;
         this->directed = directed;
 
 
@@ -138,7 +140,7 @@ class Graph {
             incidencyMatrix[u.id][edgeCount] = 1;
             incidencyMatrix[v.id][edgeCount] = 1;
         }
-
+        totalWeight += weight;
         edgeCount++;
     }
 
@@ -172,11 +174,11 @@ class Graph {
     int getVertexCount() {return vertexCount;}
     int getEdgeCount() {return edgeCount;}
     Vertex& getVertex(int i) {return vertices[i];}
+    bool isDirected () {return directed;}
 
     SinglyLinkedList<Neighbor>::Node* getAdjacencyList(int i) {
         return adjacencyList[i].getHead();
     }
-
 
 };
 #endif //GRAPH_H

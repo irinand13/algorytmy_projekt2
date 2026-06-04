@@ -6,7 +6,6 @@
 #define PRIMALGORITHM_H
 #include "Graph.h"
 #include "QuickSort.h"
-using namespace std;
 
 namespace PrimAlgorithm {
 
@@ -37,24 +36,16 @@ namespace PrimAlgorithm {
     //Implementacja algorytmu Prima
     //Znajduje minimalne drzewo rozpinające grafu MST
     template<class T>
-    Graph *prim(Graph& graph) {
+    Graph *prim(Graph& graph, SinglyLinkedList<Edge>& queue) {
+
+        if (graph.isDirected()) {
+            std::cout << "Graph is a directed graph." <<  std::endl;
+            return nullptr;
+        }
+
         int n = graph.getVertexCount();
         //tworzenie grafu mst do przechowywania wyniku
         auto* mst = new Graph(n, false, n-1);
-
-
-        ///Tworzenie kolejki prioretytowej
-        SinglyLinkedList<Edge> queue;
-
-        //Zaczynamy od wierzchołka 0
-        graph.getVertex(0).setColored(true);
-        //Dodajemy wszystkich "sąsiadów" wierzchołka do kolejki
-        SinglyLinkedList<Neighbor>::Node* start = graph.getAdjacencyList(0);
-        while (start != nullptr) {
-            insertSorted(queue, Edge(0, start->data.to.id, start->data.weight));
-            start = start->next;
-        }
-
 
         //Pętla główna
         while (queue.getSize() > 0) {
@@ -85,6 +76,17 @@ namespace PrimAlgorithm {
                 adj = adj->next;
             }
         }
+
+        for (int i = 0; i < n; i++) {
+            graph.getVertex(i).setColored(false);
+        }
+
+        if (mst->getEdgeCount() != n - 1) {
+            delete mst;
+            std::cout << "Graph is not connected!" << std::endl;
+            return nullptr;
+        }
+
         return mst;
     }
 };

@@ -4,23 +4,26 @@
 
 #ifndef KRUSKALSALGORITHM_H
 #define KRUSKALSALGORITHM_H
+#include <list>
+
 #include "Graph.h"
 #include "Array.h"
 #include "QuickSort.h"
-using namespace std;
 
 namespace KruskalAlgorithm {
 
     //Funkcja zwracająca MST dla podanego grafu
     template<class T>
-    Graph *kruskal(Graph &graph) {
-        auto sortedEdgeList = SinglyLinkedList<Edge>();
-        graph.readToEdgeList(sortedEdgeList);  // odczytywanie krawędzi oraz wag do listy krawędzi
-        QuickSort::quickSort(sortedEdgeList); //sortowanie krawędzi według wag rosnąco
+    Graph *kruskal(Graph &graph, SinglyLinkedList<Edge> &edgeList) {
+
+        if (graph.isDirected()) {
+            std::cout << "Graph is a directed graph." << endl;
+            return nullptr;
+        }
 
         auto* mst = new Graph(graph.getVertexCount(), false, graph.getVertexCount()-1);
 
-        SinglyLinkedList<Edge>::Node* current = sortedEdgeList.getHead();
+        SinglyLinkedList<Edge>::Node* current = edgeList.getHead();
 
 
         //inicjalizacja tablicy, zawierająca "kolory" dla każdej krawędzi
@@ -56,7 +59,14 @@ namespace KruskalAlgorithm {
             }
             current = current->next;
         }
+
         delete[] colors;
+
+        if (mst->getEdgeCount() != graph.getVertexCount() - 1) {
+            delete mst;
+            std::cout << "Graph is not connected!" << endl;
+            return nullptr;
+        }
         return mst;
     }
 
