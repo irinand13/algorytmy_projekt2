@@ -13,6 +13,8 @@ struct Edge {
     int to;
     int weight;
 
+    Edge() : from(0), to(0), weight(0) {}
+
     Edge(int from, int to, int weight) {
         this->from = from;
         this->to = to;
@@ -55,6 +57,8 @@ struct Vertex {
 struct Neighbor {
     Vertex to;
     int weight;
+
+    Neighbor() : to(), weight(0) {}
 
     Neighbor(Vertex to, int weight) {
         this->to = to;
@@ -175,9 +179,34 @@ class Graph {
     int getEdgeCount() {return edgeCount;}
     Vertex& getVertex(int i) {return vertices[i];}
     bool isDirected () {return directed;}
+    int getTotalWeight() {return totalWeight;}
 
     SinglyLinkedList<Neighbor>::Node* getAdjacencyList(int i) {
         return adjacencyList[i].getHead();
+    }
+
+    //Wypisuje listę sąsiedztwa dla grafu
+    void print() {
+        for (int i = 0; i < vertexCount; i++) {
+            std::cout << i << ": ";
+            SinglyLinkedList<Neighbor>::Node* current = adjacencyList[i].getHead();
+            while (current != nullptr) {
+                std::cout << "-> " << current->data.to.id
+                          << " (w:" << current->data.weight << ") ";
+                current = current->next;
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    //sprawdza czy krawędź już istnieje
+    bool hasEdge(int from, int to) {
+        SinglyLinkedList<Neighbor>::Node* current = adjacencyList[from].getHead();
+        while (current != nullptr) {
+            if (current->data.to.id == to) return true;
+            current = current->next;
+        }
+        return false;
     }
 
 };

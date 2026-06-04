@@ -11,9 +11,7 @@
 #include "QuickSort.h"
 
 namespace KruskalAlgorithm {
-
     //Funkcja zwracająca MST dla podanego grafu
-    template<class T>
     Graph *kruskal(Graph &graph, SinglyLinkedList<Edge> &edgeList) {
 
         if (graph.isDirected()) {

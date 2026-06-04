@@ -27,7 +27,7 @@ public:
             throw std::invalid_argument("Array size must be greater than 0");
         }
     }
-
+    Array() : array_size(0), data(nullptr) {}
 
     //Konstruktor kopiujący
     //Tworzy kopię obiektu
@@ -44,19 +44,12 @@ public:
     //operator przypisania
     Array& operator=(const Array& other) {
         if (this == &other) return *this;
-
-        //zwolnienie pamięci, aby nie było wycieków pamięci
         delete[] data;
-
-
-        array_size = other.array_size; //alokacja pamięci
-        data = new T[array_size]; //kopiowanie danych
-
-
+        array_size = other.array_size;
+        data = (array_size > 0) ? new T[array_size] : nullptr;
         for (int i = 0; i < array_size; i++) {
             data[i] = other.data[i];
         }
-
         return *this;
     }
 

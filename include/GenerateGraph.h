@@ -13,7 +13,6 @@ namespace GenerateGraph {
         int minEdges = n;
         int maxEdges = directed ? n*(n-1) : n*(n-1)/2;
         auto graph = new Graph(n, directed, maxEdges);
-        srand(time(nullptr));
 
         // Sprawdza gęstość i ustawia liczbę krawędzi według tej gęstości
         switch (density) {
@@ -77,20 +76,25 @@ namespace GenerateGraph {
         for (int i = 0; i < t; i++) {
             if(newAdded == t) break;
 
+            int attempts = 0;
             do {
                 from = verteces[rand() % n];
                 to = verteces[rand() % n];
-            } while (from == to);
+                attempts++;
+                if (attempts > 1000) break;
+            } while (from == to || graph->hasEdge(from, to));
 
-            int weight = rand() % weightRange + 1;
+            int rweight = rand() % weightRange + 1;
 
             //Dodawanie krawędzi do grafu
             Vertex u = graph->getVertex(from);
             Vertex v = graph->getVertex(to);
-            graph->addEdge(u, v, weight);
+            graph->addEdge(u, v, rweight);
             newAdded++;
         }
         return graph;
     }
+
+
 }
 #endif //GENERATEGRAPH_H

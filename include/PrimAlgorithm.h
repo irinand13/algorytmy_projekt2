@@ -35,7 +35,6 @@ namespace PrimAlgorithm {
 
     //Implementacja algorytmu Prima
     //Znajduje minimalne drzewo rozpinające grafu MST
-    template<class T>
     Graph *prim(Graph& graph, SinglyLinkedList<Edge>& queue) {
 
         if (graph.isDirected()) {
