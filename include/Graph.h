@@ -126,16 +126,15 @@ class Graph {
     // Dodaje krawiędź do listy oraz do macierzy incydencji
     void addEdge(Vertex& u, Vertex& v, int weight) {
 
-        if (edgeCount >= maxEdgeCount) {
-            throw std::out_of_range("too many edges");
-        }
-
         if (weight < 0) throw std::invalid_argument("weight cannot be negative");
 
-        adjacencyList[u.id].push({v, weight});
+        //sprawdza czy krawędź już istnieje
+        if (hasEdge(u.id, v.id)) return;
 
-        if (!directed)
-            adjacencyList[v.id].push({u, weight});
+        if (edgeCount >= maxEdgeCount)
+            throw std::out_of_range("too many edges");
+
+        adjacencyList[u.id].push({v, weight});
 
         if (directed) {
             incidencyMatrix[u.id][edgeCount] = 1;
@@ -144,8 +143,13 @@ class Graph {
             incidencyMatrix[u.id][edgeCount] = 1;
             incidencyMatrix[v.id][edgeCount] = 1;
         }
+
         totalWeight += weight;
         edgeCount++;
+
+        if (!directed && !hasEdge(v.id, u.id)) {
+            adjacencyList[v.id].push({u, weight});
+        }
     }
 
 
@@ -207,6 +211,13 @@ class Graph {
             current = current->next;
         }
         return false;
+    }
+
+    bool isConnected() {
+        for (int i = 0; i < vertexCount; i++) vertices[i].colored = false;
+
+        vertices[0].colored = true;
+
     }
 
 };
