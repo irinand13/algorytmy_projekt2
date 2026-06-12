@@ -79,7 +79,7 @@ class Graph {
     Array<Array<int>> incidencyMatrix;
 
 
-    public:
+public:
     // inicjalizacja grafu
     // tworzy listę ora
     explicit Graph(int n, bool directed, int maxEdgeCount) {
@@ -128,11 +128,9 @@ class Graph {
 
         if (weight < 0) throw std::invalid_argument("weight cannot be negative");
 
-        //sprawdza czy krawędź już istnieje
-        if (hasEdge(u.id, v.id)) return;
+        if (hasEdge(u.id, v.id)) throw std::invalid_argument("edge already exists");
 
-        if (edgeCount >= maxEdgeCount)
-            throw std::out_of_range("too many edges");
+        if (edgeCount >= maxEdgeCount) throw std::out_of_range("too many edges");
 
         adjacencyList[u.id].push({v, weight});
 
@@ -142,6 +140,9 @@ class Graph {
         } else {
             incidencyMatrix[u.id][edgeCount] = 1;
             incidencyMatrix[v.id][edgeCount] = 1;
+
+            incidencyMatrix[v.id][edgeCount] = 1;
+            incidencyMatrix[u.id][edgeCount] = 1;
         }
 
         totalWeight += weight;
@@ -179,11 +180,11 @@ class Graph {
 
 
 
-    int getVertexCount() {return vertexCount;}
-    int getEdgeCount() {return edgeCount;}
+    int  getVertexCount() const {return vertexCount;}
+    int getEdgeCount() const {return edgeCount;}
     Vertex& getVertex(int i) {return vertices[i];}
-    bool isDirected () {return directed;}
-    int getTotalWeight() {return totalWeight;}
+    bool isDirected () const {return directed;}
+    int getTotalWeight() const {return totalWeight;}
 
     SinglyLinkedList<Neighbor>::Node* getAdjacencyList(int i) {
         return adjacencyList[i].getHead();
@@ -216,8 +217,31 @@ class Graph {
     bool isConnected() {
         for (int i = 0; i < vertexCount; i++) vertices[i].colored = false;
 
-        vertices[0].colored = true;
+        dfs(0);
 
+        bool connected = true;
+        for (int i = 0; i < vertexCount; i++) {
+            if (!vertices[i].colored) {
+                connected = false;
+                break;
+            }
+        }
+
+        for (int i = 0; i < vertexCount; i++) vertices[i].colored = false;
+        return connected;
+    }
+
+
+    void dfs(int vertex) {
+        vertices[vertex].colored = true;
+        SinglyLinkedList<Neighbor>::Node* current = adjacencyList[vertex].getHead();
+        while (current != nullptr) {
+            int neighbor = current->data.to.id;
+            if (!vertices[neighbor].colored) {
+                dfs(neighbor);
+            }
+            current = current->next;
+        }
     }
 
 };

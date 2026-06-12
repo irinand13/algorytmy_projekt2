@@ -12,15 +12,18 @@
 
 namespace KruskalAlgorithm {
     //Funkcja zwracająca MST dla podanego grafu
-    Graph *kruskal(Graph &graph, SinglyLinkedList<Edge> &edgeList) {
+    Graph *kruskal(Graph &graph) {
 
         if (graph.isDirected()) {
             std::cout << "Graph is a directed graph." << endl;
             return nullptr;
         }
 
+        SinglyLinkedList<Edge> edgeList;
+        graph.readToEdgeList(edgeList);
         auto* mst = new Graph(graph.getVertexCount(), false, graph.getVertexCount()-1);
 
+        QuickSort::quickSort(edgeList);
         SinglyLinkedList<Edge>::Node* current = edgeList.getHead();
 
 

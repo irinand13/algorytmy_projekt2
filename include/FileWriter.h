@@ -15,10 +15,10 @@ class FileWriter {
     //Zapisuje graf do pliku
 public:
     void writeFromGraph(const string& fileName, Graph* graph) {
-        ofstream file(fileName);
+        std::ofstream file(fileName);
 
         if (!file.is_open()) {
-            cerr << "Error opening file " << fileName << endl;
+            std::cerr << "Error opening file " << fileName << endl;
             throw std::runtime_error("Cannot open file: " + fileName);
         }
 
@@ -36,6 +36,7 @@ public:
                 current = current->next;
             }
         }
+        file.close();
     }
 };
 #endif //FILEWRITER_H

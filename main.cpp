@@ -8,30 +8,31 @@
 using namespace std;
 int main() {
     FileWriter writer;
-    srand(time(nullptr));
-    Graph* graph = GenerateGraph::generateGraph(10,false, 50);
+    FileReader reader;
+    string fileName = "dane.txt";
 
+    // srand(time(nullptr));
+    Graph* graph = reader.readToGraph(fileName, true);
+    graph->print();
+    if (graph->isConnected()) cout << "Connected" << endl;
+    else cout << "Not Connected" << endl;
     writer.writeFromGraph("output.txt", graph);
-    // SinglyLinkedList<Edge> queue;
-    // SinglyLinkedList<Neighbor>::Node* start = graph->getAdjacencyList(0);
-    // while (start != nullptr) {
-    //     PrimAlgorithm::insertSorted(queue, Edge(0, start->data.to.id, start->data.weight));
-    //     start = start->next;
-    // }
+
+    // writer.writeFromGraph("output.txt", graph);
+    //
     // graph->print();
-    // graph->getVertex(0).setColored(true);
-    // Graph* mst = PrimAlgorithm::prim(*graph, queue);
+    // Graph* mst = PrimAlgorithm::prim(*graph);
     // cout << mst->getTotalWeight() << endl;
     // mst->print();
     //
-    // SinglyLinkedList<Edge> edgeList;
-    // graph->readToEdgeList(edgeList);
-    // QuickSort::quickSort(edgeList);
     //
-    // Graph* mst2 = KruskalAlgorithm::kruskal(*graph, edgeList);
+    //
+    // Graph* mst2 = KruskalAlgorithm::kruskal(*graph);
     // cout << mst->getTotalWeight() << endl;
     // mst2->print();
     delete graph;
+    // delete mst;
+    // delete mst2;
 
 //     try {
 //         Graph* g = reader.readToGraph("dane.txt", false);

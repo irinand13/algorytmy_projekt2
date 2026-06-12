@@ -28,9 +28,8 @@ class FileReader {
             int u, v, w;
             file >> u >> v >> w;
 
-            Vertex from(u, false);
-            Vertex to(v, false);
-
+            Vertex& from = graph->getVertex(u);
+            Vertex& to = graph->getVertex(v);
             graph->addEdge(from, to, w);
         }
 

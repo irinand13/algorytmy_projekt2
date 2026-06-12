@@ -35,7 +35,7 @@ namespace PrimAlgorithm {
 
     //Implementacja algorytmu Prima
     //Znajduje minimalne drzewo rozpinające grafu MST
-    Graph *prim(Graph& graph, SinglyLinkedList<Edge>& queue) {
+    Graph *prim(Graph& graph) {
 
         if (graph.isDirected()) {
             std::cout << "Graph is a directed graph." <<  std::endl;
@@ -43,8 +43,17 @@ namespace PrimAlgorithm {
         }
 
         int n = graph.getVertexCount();
+        SinglyLinkedList<Edge> queue;
         //tworzenie grafu mst do przechowywania wyniku
         auto* mst = new Graph(n, false, n-1);
+
+
+        graph.getVertex(0).setColored(true);
+        SinglyLinkedList<Neighbor>::Node* start = graph.getAdjacencyList(0);
+        while (start != nullptr) {
+            insertSorted(queue, Edge(0, start->data.to.id, start->data.weight));
+            start = start->next;
+        }
 
         //Pętla główna
         while (queue.getSize() > 0) {
