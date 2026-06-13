@@ -214,11 +214,13 @@ public:
         return false;
     }
 
+    //sprawdza czy graf jest spójny
     bool isConnected() {
         for (int i = 0; i < vertexCount; i++) vertices[i].colored = false;
 
         dfs(0);
 
+        // sprawdza czy wszystkie wierzchołki są "pokolorowane"
         bool connected = true;
         for (int i = 0; i < vertexCount; i++) {
             if (!vertices[i].colored) {
@@ -227,18 +229,20 @@ public:
             }
         }
 
+        //resetujemy kolory
         for (int i = 0; i < vertexCount; i++) vertices[i].colored = false;
         return connected;
     }
 
 
+    //metoda DFS do przeszukiwania grafu
     void dfs(int vertex) {
         vertices[vertex].colored = true;
         SinglyLinkedList<Neighbor>::Node* current = adjacencyList[vertex].getHead();
         while (current != nullptr) {
             int neighbor = current->data.to.id;
             if (!vertices[neighbor].colored) {
-                dfs(neighbor);
+                dfs(neighbor); //rekurencja
             }
             current = current->next;
         }

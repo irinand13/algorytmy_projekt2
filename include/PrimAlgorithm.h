@@ -12,7 +12,7 @@ namespace PrimAlgorithm {
     //Metoda wstawia posortowanych według wag sąsiadów dla wybranej krawędzi
     void insertSorted(SinglyLinkedList<Edge>& queue, Edge edge) {
 
-        //sprawdza czy jest początek listy
+        // sprawdza czy jest początek listy
         // czy waga krawędzi jest mniejsza od pierwszej warotści w kolejce
         //i dodaje je na początek kolejki
         if (queue.getHead() == nullptr || edge.weight < queue.getHead()->data.weight) {
@@ -48,6 +48,7 @@ namespace PrimAlgorithm {
         auto* mst = new Graph(n, false, n-1);
 
 
+        //zaczyna od wierzchołka 0
         graph.getVertex(0).setColored(true);
         SinglyLinkedList<Neighbor>::Node* start = graph.getAdjacencyList(0);
         while (start != nullptr) {
