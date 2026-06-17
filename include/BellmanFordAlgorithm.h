@@ -7,7 +7,7 @@
 #include "Graph.h"
 
 namespace BellmanFordAlgorithm {
-    int BellmanFord(Graph graph) {
+    int *BellmanFord(Graph &graph) {
 
         int n = graph.getVertexCount();
         SinglyLinkedList<Edge> queue; //lists priorytetowa
@@ -15,8 +15,10 @@ namespace BellmanFordAlgorithm {
         int* dist = new int[n]; //tablica odległości
         int* visited = new int[n]; //tablica poprzedników
 
-        if(!graph.isDirected()) return nullptr;
-
+        if(!graph.isDirected()) {
+            std::cout<<"Graph is not directed"<<std::endl;
+            return nullptr;
+        }
 
         //ustawie odległości na maksimum i wierzchołki odwiedzone na -1
         for(int i = 0; i < n; i++) {
@@ -50,7 +52,7 @@ namespace BellmanFordAlgorithm {
 
             }
         }
-
+        return dist;
     }
 };
 #endif //BELLMANFORDSALGORITHM_H

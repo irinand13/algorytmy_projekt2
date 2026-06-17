@@ -1,5 +1,8 @@
 #include <iostream>
 #include <GenerateGraph.h>
+
+#include "BellmanFordAlgorithm.h"
+#include "DijkstraAlgorithm.h"
 #include "FileReader.h"
 #include "FileWriter.h"
 
@@ -8,16 +11,35 @@
 using namespace std;
 int main() {
     FileWriter writer;
-    FileReader reader;
     string fileName = "dane.txt";
 
-    // srand(time(nullptr));
-    Graph* graph = reader.readToGraph(fileName, true);
+    srand(time(nullptr));
+    Graph* graph = GenerateGraph::generateGraph(10,true,50);
     graph->print();
     if (graph->isConnected()) cout << "Connected" << endl;
     else cout << "Not Connected" << endl;
     writer.writeFromGraph("output.txt", graph);
+    int *dw = DijkstraAlgorithm::dijkstraAlgorithm(*graph);
+    int *bw = BellmanFordAlgorithm::BellmanFord(*graph);
 
+    cout << "Dijkstra" << endl;
+    for (int i = 0; i < graph->getVertexCount(); i++) {
+        if (dw[i] == INT_MAX)
+            std::cout << "dist[" << i << "] = nieosiagalny" << std::endl;
+        else
+            std::cout << "dist[" << i << "] = " << dw[i] << std::endl;
+    }
+
+
+    cout << "BellmanFord" << endl;
+    for (int i = 0; i < graph->getVertexCount(); i++) {
+        if (bw[i] == INT_MAX)
+            std::cout << "dist[" << i << "] = nieosiagalny" << std::endl;
+        else
+            std::cout << "dist[" << i << "] = " << bw[i] << std::endl;
+    }
+    delete[] bw;
+    delete[] dw;
     // writer.writeFromGraph("output.txt", graph);
     //
     // graph->print();

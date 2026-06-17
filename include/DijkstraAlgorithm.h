@@ -38,7 +38,10 @@ namespace DijkstraAlgorithm {
         int* dist = new int[n]; //tablica odległości
         int* visited = new int[n]; //tablica poprzedników
 
-        if(!graph.isDirected()) return nullptr;
+        if(!graph.isDirected()) {
+            std::cout<<"Graph is not directed"<<std::endl;
+            return nullptr;
+        }
 
 
         //ustawie odległości na maksimum i wierzchołki odwiedzone na -1
