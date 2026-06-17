@@ -14,32 +14,22 @@ int main() {
     string fileName = "dane.txt";
 
     srand(time(nullptr));
-    Graph* graph = GenerateGraph::generateGraph(10,true,50);
+    Graph* graph = GenerateGraph::generateGraph(10,true,25);
     graph->print();
     if (graph->isConnected()) cout << "Connected" << endl;
     else cout << "Not Connected" << endl;
     writer.writeFromGraph("output.txt", graph);
-    int *dw = DijkstraAlgorithm::dijkstraAlgorithm(*graph);
-    int *bw = BellmanFordAlgorithm::BellmanFord(*graph);
+    Graph* dgraph= DijkstraAlgorithm::dijkstraAlgorithm(*graph,0,9);
+    Graph* bgraph= BellmanFordAlgorithm::BellmanFord(*graph,0,9);
 
-    cout << "Dijkstra" << endl;
-    for (int i = 0; i < graph->getVertexCount(); i++) {
-        if (dw[i] == INT_MAX)
-            std::cout << "dist[" << i << "] = nieosiagalny" << std::endl;
-        else
-            std::cout << "dist[" << i << "] = " << dw[i] << std::endl;
-    }
+    cout << dgraph->getTotalWeight() << endl;
+    dgraph->print();
+    cout << bgraph->getTotalWeight() << endl;
+    bgraph->print();
 
-
-    cout << "BellmanFord" << endl;
-    for (int i = 0; i < graph->getVertexCount(); i++) {
-        if (bw[i] == INT_MAX)
-            std::cout << "dist[" << i << "] = nieosiagalny" << std::endl;
-        else
-            std::cout << "dist[" << i << "] = " << bw[i] << std::endl;
-    }
-    delete[] bw;
-    delete[] dw;
+    delete graph;
+    delete dgraph;
+    delete bgraph;
     // writer.writeFromGraph("output.txt", graph);
     //
     // graph->print();
@@ -52,7 +42,7 @@ int main() {
     // Graph* mst2 = KruskalAlgorithm::kruskal(*graph);
     // cout << mst->getTotalWeight() << endl;
     // mst2->print();
-    delete graph;
+
     // delete mst;
     // delete mst2;
 

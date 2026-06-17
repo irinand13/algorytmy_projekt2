@@ -31,17 +31,20 @@ namespace DijkstraAlgorithm {
     }
 
     //algorytm Dijkstra
-    int *dijkstraAlgorithm(Graph &graph) {
+    Graph* dijkstraAlgorithm(Graph &graph, int from, int to) {
+
+        if(!graph.isDirected()) {
+            std::cout<<"Graph is not directed"<<std::endl;
+            return nullptr;
+        }
+
         int n = graph.getVertexCount();
         SinglyLinkedList<Edge> queue; //lists priorytetowa
 
         int* dist = new int[n]; //tablica odległości
         int* visited = new int[n]; //tablica poprzedników
 
-        if(!graph.isDirected()) {
-            std::cout<<"Graph is not directed"<<std::endl;
-            return nullptr;
-        }
+
 
 
         //ustawie odległości na maksimum i wierzchołki odwiedzone na -1
@@ -50,13 +53,12 @@ namespace DijkstraAlgorithm {
             visited[i] = -1;
         }
 
-        //zaczyna od 0
-        dist[0] = 0;
-        insertSorted(queue, Edge(0, 0, 0));
+
+        dist[from] = 0;
+        insertSorted(queue, Edge(from, from, 0));
 
         //petla główna
         while(queue.getSize() > 0) {
-
             //pobiera krawędź z najlepszą odległością
             Edge best = queue.getHead()->data;
             queue.popFront();
@@ -81,7 +83,31 @@ namespace DijkstraAlgorithm {
                 start = start->next;
             }
         }
-        return dist;
+
+            if (dist[to] == INT_MAX) {
+                std::cout << "No path from " << from << " to " << to << std::endl;
+                delete[] dist;
+                delete[] visited;
+                return nullptr;
+            }
+
+        auto* path = new Graph(n, true, n - 1);
+        //wypełnia graf
+        int current = to;
+
+        while (current != from) {
+
+            int prev       = visited[current];
+            int edgeWeight = dist[current] - dist[prev];
+            Vertex& vPrev    = graph.getVertex(prev);
+            Vertex& vCurrent = graph.getVertex(current);
+            path->addEdge(vPrev, vCurrent, edgeWeight);
+            current = prev;
+        }
+
+        delete[] dist;
+        delete[] visited;
+        return path;
     }
 };
 #endif //DIJKSTRASALGORITHM_H

@@ -140,9 +140,6 @@ public:
         } else {
             incidencyMatrix[u.id][edgeCount] = 1;
             incidencyMatrix[v.id][edgeCount] = 1;
-
-            incidencyMatrix[v.id][edgeCount] = 1;
-            incidencyMatrix[u.id][edgeCount] = 1;
         }
 
         totalWeight += weight;
@@ -247,6 +244,11 @@ public:
             current = current->next;
         }
     }
+
+    int getMatrixValue(int row, int col) {
+        return incidencyMatrix[row][col];
+    }
+
 
 };
 #endif //GRAPH_H

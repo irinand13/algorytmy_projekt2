@@ -7,18 +7,18 @@
 #include "Graph.h"
 
 namespace BellmanFordAlgorithm {
-    int *BellmanFord(Graph &graph) {
-
-        int n = graph.getVertexCount();
-        SinglyLinkedList<Edge> queue; //lists priorytetowa
-
-        int* dist = new int[n]; //tablica odległości
-        int* visited = new int[n]; //tablica poprzedników
+    Graph* BellmanFord(Graph &graph, int from, int to) {
 
         if(!graph.isDirected()) {
             std::cout<<"Graph is not directed"<<std::endl;
             return nullptr;
         }
+
+        int n = graph.getVertexCount();
+
+        int* dist = new int[n]; //tablica odległości
+        int* visited = new int[n]; //tablica poprzedników
+
 
         //ustawie odległości na maksimum i wierzchołki odwiedzone na -1
         for(int i = 0; i < n; i++) {
@@ -26,8 +26,7 @@ namespace BellmanFordAlgorithm {
             visited[i] = -1;
         }
 
-        //zaczyna od 0
-        dist[0] = 0;
+        dist[from] = 0;
 
         //przechodzi przez wszystkie krawędzi
         for(int i = 0; i < n - 1; i++) {
@@ -52,7 +51,25 @@ namespace BellmanFordAlgorithm {
 
             }
         }
-        return dist;
+
+        if (dist[to] == INT_MAX) {
+            delete[] dist;
+            delete[] visited;
+            return nullptr;
+        }
+
+        auto* path = new Graph(n, true, n - 1);
+
+        int current = to;
+        while (current != from) {
+            int prev = visited[current];
+            path->addEdge(graph.getVertex(prev), graph.getVertex(current),dist[current] - dist[prev]);
+            current = prev;
+        }
+
+        delete[] dist;
+        delete[] visited;
+        return path;
     }
 };
 #endif //BELLMANFORDSALGORITHM_H

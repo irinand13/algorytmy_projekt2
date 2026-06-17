@@ -22,20 +22,33 @@ public:
             throw std::runtime_error("Cannot open file: " + fileName);
         }
 
-        file << graph->getVertexCount() << "   " << graph->getEdgeCount() << "\n";
-
+        // lista sąsiedztwa
+        file << "Adjacency list:\n";
         for (int i = 0; i < graph->getVertexCount(); i++) {
+            file << i << ": ";
             SinglyLinkedList<Neighbor>::Node* current = graph->getAdjacencyList(i);
             while (current != nullptr) {
-                //jeżeli graf jest nieskierowany unika
-                if (!graph->isDirected() && i > current->data.to.id) {
-                    current = current->next;
-                    continue;
-                }
-                file << i << "   " << current->data.to.id << "   " << current->data.weight << "\n";
+                file << "-> " << current->data.to.id
+                     << " (w:" << current->data.weight << ") ";
                 current = current->next;
             }
+            file << "\n";
         }
+
+        // macierz incydencji
+        file << "\nIncidency matrix:\n";
+        file << "    ";
+        for (int i = 0; i < graph->getVertexCount(); i++)
+            file << "v" << i << " ";
+        file << "\n";
+
+        for (int j = 0; j < graph->getEdgeCount(); j++) {
+            file << "e" << j << ": ";
+            for (int i = 0; i < graph->getVertexCount(); i++)
+                file << " " << graph->getMatrixValue(i, j) << " ";
+            file << "\n";
+        }
+
         file.close();
     }
 };

@@ -25,12 +25,13 @@ namespace FordFulkersonAlgorithm {
     }
 
     int fordFulkerson(Graph& graph, int source, int sink) {
-        int n = graph.getVertexCount();
 
         if (!graph.isDirected()) {
             std::cout<<"Graph is not a directed graph."<<std::endl;
             return 0;
         }
+
+        int n = graph.getVertexCount();
 
         // macierz przepustowości
         int** residual = new int*[n];
