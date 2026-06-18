@@ -24,7 +24,7 @@ namespace FordFulkersonAlgorithm {
         return false;
     }
 
-    int fordFulkerson(Graph& graph, int source, int sink) {
+    Graph* fordFulkerson(Graph& graph, int source, int sink, int& maxFlow) {
 
         if (!graph.isDirected()) {
             std::cout<<"Graph is not a directed graph."<<std::endl;
@@ -53,7 +53,6 @@ namespace FordFulkersonAlgorithm {
         }
 
         int* parent = new int[n];
-        int maxFlow = 0;
 
         while (true) {
             // reset kolorów przed każdym DFS
@@ -89,12 +88,27 @@ namespace FordFulkersonAlgorithm {
         for (int i = 0; i < n; i++)
             graph.getVertex(i).setColored(false);
 
-        for (int i = 0; i < n; i++)
-            delete[] residual[i];
+
+        int maxEdges = n * (n - 1);
+        auto* flowGraph = new Graph(n, true, maxEdges);
+
+        for (int u = 0; u < n; u++) {
+            SinglyLinkedList<Neighbor>::Node* start = graph.getAdjacencyList(u);
+            while (start != nullptr) {
+                int v = start->data.to.id;
+                int w = start->data.weight;
+                int flow = w - residual[u][v];
+                if (flow > 0)
+                    flowGraph->addEdge(graph.getVertex(u), graph.getVertex(v), flow);
+                start = start->next;
+            }
+        }
+
+        for (int i = 0; i < n; i++) delete[] residual[i];
         delete[] residual;
         delete[] parent;
 
-        return maxFlow;
+        return flowGraph;
     }
 };
 #endif //FORDFULKERSONALGORITHM_H

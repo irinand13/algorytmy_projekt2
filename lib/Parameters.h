@@ -64,6 +64,7 @@ namespace Parameters
   extern int density;
   extern int iterations;
 
+
   //
   // Methods to use.
   //
