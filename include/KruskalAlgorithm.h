@@ -4,32 +4,25 @@
 
 #ifndef KRUSKALSALGORITHM_H
 #define KRUSKALSALGORITHM_H
-#include <list>
+#include <iostream>
 
 #include "Graph.h"
 #include "Array.h"
 #include "QuickSort.h"
 
 namespace KruskalAlgorithm {
-    //Funkcja zwracająca MST dla podanego grafu
-    Graph *kruskal(Graph &graph) {
+    //Algorytm Kruskala
+    Graph *kruskal(int vertexCount, SinglyLinkedList<Edge> &edgeList) {
 
-        if (graph.isDirected()) {
-            std::cout << "Graph is a directed graph." << endl;
-            return nullptr;
-        }
-
-        SinglyLinkedList<Edge> edgeList;
-        graph.readToEdgeList(edgeList);
-        auto* mst = new Graph(graph.getVertexCount(), false, graph.getVertexCount()-1);
+        auto* mst = new Graph(vertexCount, false, vertexCount - 1);
 
         QuickSort::quickSort(edgeList);
         SinglyLinkedList<Edge>::Node* current = edgeList.getHead();
 
 
-        //inicjalizacja tablicy, zawierająca "kolory" dla każdej krawędzi
-        int* colors = new int[graph.getVertexCount()];
-        for (int i = 0; i < graph.getVertexCount(); i++) {
+        //inicjalizacja tablicy, zawierająca kolory dla każdej krawędzi
+        int* colors = new int[vertexCount];
+        for (int i = 0; i < vertexCount; i++) {
             colors[i] = i;
         }
 
@@ -45,14 +38,14 @@ namespace KruskalAlgorithm {
 
             //Jeżeli "kolory" są różne, zmieniamy kolor 2 wierzchołka
             if (colorU != colorV) {
-                Vertex vu = graph.getVertex(u);
-                Vertex vv = graph.getVertex(v);
+                Vertex& vu = mst->getVertex(u);
+                Vertex& vv = mst->getVertex(v);
 
                 //dodajemy krawędź do mst
-                mst->addEdge(vu,vv, current->data.weight);
+                mst->addEdge(vu, vv, current->data.weight);
 
                 //zmiana "kolorów" wierzchołków połączonych z 2
-                for (int i = 0; i < graph.getVertexCount(); i++) {
+                for (int i = 0; i < vertexCount; i++) {
                     if (colors[i] == colorV) {
                         colors[i] = colorU;
                     }
@@ -63,9 +56,9 @@ namespace KruskalAlgorithm {
 
         delete[] colors;
 
-        if (mst->getEdgeCount() != graph.getVertexCount() - 1) {
+        if (mst->getEdgeCount() != vertexCount - 1) {
             delete mst;
-            std::cout << "Graph is not connected!" << endl;
+            std::cout << "Graph is not connected!" << std::endl;
             return nullptr;
         }
         return mst;

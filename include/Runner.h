@@ -1,3 +1,5 @@
+
+
 #ifndef RUNNER_H
 #define RUNNER_H
 #include <iostream>
@@ -29,20 +31,41 @@ public:
             runBenchmark();
         } else if (Parameters::runMode == Parameters::RunModes::singleFile) {
             runSingleFile();
-        } else if (Parameters::runMode == Parameters::RunModes::help) {
-            Parameters::help();
         }
     }
 
 private:
-    void benchmarkKruskal(std::ofstream& file, int iterations, Graph& graph, FileWriter& writer) {
+    void clearEdgeList(SinglyLinkedList<Edge> &edgeList) {
+        while (edgeList.getSize() > 0) {
+            edgeList.popFront();
+        }
+    }
+
+    void executeSingleKruskalBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
+                                       bool useMatrix, SinglyLinkedList<Edge> &edgeList) {
         long long sum = 0;
         long long minTime = LLONG_MAX;
         long long maxTime = LLONG_MIN;
 
+        std::string structName = useMatrix ? "Macierz Incydencji" : "Lista Nastepnikow";
+        file << "# Algorytm: Kruskal | Badana struktura: " << structName << "\n";
+
+        Parameters::problem = Parameters::Problems::mst;
+        Parameters::algorithm = Parameters::Algorithms::kruskal;
+        Parameters::structure = useMatrix
+                                    ? Parameters::Structures::incidenceMatrix
+                                    : Parameters::Structures::adjacencyList;
+
         for (int i = 0; i < iterations; i++) {
+            clearEdgeList(edgeList);
+
             auto start = std::chrono::high_resolution_clock::now();
-            Graph* kgraph = KruskalAlgorithm::kruskal(graph);
+
+            if (useMatrix) graph.readMatrixToEdgeList(edgeList);
+            else graph.readAdjacencyToEdgeList(edgeList);
+
+            Graph *kgraph = KruskalAlgorithm::kruskal(graph.getVertexCount(), edgeList);
+
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
@@ -50,20 +73,57 @@ private:
             delete kgraph;
             if (duration < minTime) minTime = duration;
             if (duration > maxTime) maxTime = duration;
-            writer.writeSingleIteration(file, iterations, duration);
+
+            writer.writeSingleIteration(file, i + 1, duration);
         }
-        long long averagek = sum / iterations;
-        writer.writeSummary(file, averagek, minTime, maxTime);
+        writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
-    void benchmarkPrim(std::ofstream& file, int iterations, Graph& graph, FileWriter& writer) {
+    void benchmarkKruskal(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer) {
+        SinglyLinkedList<Edge> edgeList;
+        switch (Parameters::structure) {
+            case Parameters::Structures::allStructures:
+                executeSingleKruskalBenchmark(file, iterations, graph, writer, true, edgeList);
+                executeSingleKruskalBenchmark(file, iterations, graph, writer, false, edgeList);
+                Parameters::structure = Parameters::Structures::allStructures;
+                break;
+            case Parameters::Structures::incidenceMatrix:
+                executeSingleKruskalBenchmark(file, iterations, graph, writer, true, edgeList);
+                break;
+            case Parameters::Structures::adjacencyList:
+                executeSingleKruskalBenchmark(file, iterations, graph, writer, false, edgeList);
+                break;
+            default:
+                std::cerr << "Error: unknown structure!" << std::endl;
+        }
+    }
+
+
+    void executeSinglePrimBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
+                                    bool useMatrix, SinglyLinkedList<Edge> &edgeList) {
         long long sum = 0;
         long long minTime = LLONG_MAX;
         long long maxTime = LLONG_MIN;
 
+        std::string structName = useMatrix ? "Macierz Incydencji" : "Lista Nastepnikow";
+        file << "# Algorytm: Prim | Badana struktura: " << structName << "\n";
+
+        Parameters::problem = Parameters::Problems::mst;
+        Parameters::algorithm = Parameters::Algorithms::prim;
+        Parameters::structure = useMatrix
+                                    ? Parameters::Structures::incidenceMatrix
+                                    : Parameters::Structures::adjacencyList;
+
         for (int i = 0; i < iterations; i++) {
+            clearEdgeList(edgeList);
+
             auto start = std::chrono::high_resolution_clock::now();
-            Graph* pgraph = PrimAlgorithm::prim(graph);
+
+            if (useMatrix) graph.readMatrixToEdgeList(edgeList);
+            else graph.readAdjacencyToEdgeList(edgeList);
+
+            Graph *pgraph = PrimAlgorithm::prim(graph.getVertexCount(), edgeList);
+
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
@@ -71,45 +131,53 @@ private:
             delete pgraph;
             if (duration < minTime) minTime = duration;
             if (duration > maxTime) maxTime = duration;
-            writer.writeSingleIteration(file, iterations, duration);
+
+            writer.writeSingleIteration(file, i + 1, duration);
         }
-        long long averagep = sum / iterations;
-        writer.writeSummary(file, averagep, minTime, maxTime);
+        writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
-    void runMstBenchmark(std::ofstream& file, int iterations, Graph& graph) {
-        FileWriter writer;
-
-        switch (Parameters::algorithm) {
-            case Parameters::Algorithms::kruskal:
-                benchmarkKruskal(file, iterations, graph, writer);
+    void benchmarkPrim(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer) {
+        SinglyLinkedList<Edge> edgeList;
+        switch (Parameters::structure) {
+            case Parameters::Structures::allStructures:
+                executeSinglePrimBenchmark(file, iterations, graph, writer, true, edgeList);
+                executeSinglePrimBenchmark(file, iterations, graph, writer, false, edgeList);
+                Parameters::structure = Parameters::Structures::allStructures;
                 break;
-            case Parameters::Algorithms::prim:
-                benchmarkPrim(file, iterations, graph, writer);
+            case Parameters::Structures::incidenceMatrix:
+                executeSinglePrimBenchmark(file, iterations, graph, writer, true, edgeList);
                 break;
-            case Parameters::Algorithms::allAlgorithms:
-                std::cout << "Running all MST algorithms..." << std::endl;
-                Parameters::algorithm = Parameters::Algorithms::kruskal;
-                benchmarkKruskal(file, iterations, graph, writer);
-                
-                Parameters::algorithm = Parameters::Algorithms::prim;
-                benchmarkPrim(file, iterations, graph, writer);
-                
-                Parameters::algorithm = Parameters::Algorithms::allAlgorithms;
+            case Parameters::Structures::adjacencyList:
+                executeSinglePrimBenchmark(file, iterations, graph, writer, false, edgeList);
                 break;
             default:
-                std::cerr << "Error: Unsupported algorithm for MST!" << std::endl;
+                std::cerr << "Error: unknown structure!"<< std::endl;
         }
     }
 
-    void benchmarkDijkstra(std::ofstream& file, int iterations, Graph& graph, FileWriter& writer) {
+
+    void executeSingleDijkstraBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
+                                        bool useMatrix) {
         long long sum = 0;
         long long minTime = LLONG_MAX;
         long long maxTime = LLONG_MIN;
 
+        std::string structName = useMatrix ? "Macierz Incydencji" : "Lista Nastepnikow";
+        file << "# Algorytm: Dijkstra | Badana struktura: " << structName << "\n";
+
+        Parameters::problem = Parameters::Problems::sp;
+        Parameters::algorithm = Parameters::Algorithms::dijkstra;
+        Parameters::structure = useMatrix
+                                    ? Parameters::Structures::incidenceMatrix
+                                    : Parameters::Structures::adjacencyList;
+
         for (int i = 0; i < iterations; i++) {
             auto start = std::chrono::high_resolution_clock::now();
-            Graph* dgraph = DijkstraAlgorithm::dijkstraAlgorithm(graph, Parameters::vertexStart, Parameters::vertexEnd);
+
+            Graph *dgraph = DijkstraAlgorithm::dijkstra(
+                graph, Parameters::vertexStart, Parameters::vertexEnd, useMatrix);
+
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
@@ -117,20 +185,52 @@ private:
             delete dgraph;
             if (duration < minTime) minTime = duration;
             if (duration > maxTime) maxTime = duration;
-            writer.writeSingleIteration(file, iterations, duration);
+
+            writer.writeSingleIteration(file, i + 1, duration);
         }
-        long long averaged = sum / iterations;
-        writer.writeSummary(file, averaged, minTime, maxTime);
+        writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
-    void benchmarkBellmanFord(std::ofstream& file, int iterations, Graph& graph, FileWriter& writer) {
+    void benchmarkDijkstra(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer) {
+        switch (Parameters::structure) {
+            case Parameters::Structures::allStructures:
+                executeSingleDijkstraBenchmark(file, iterations, graph, writer, true);
+                executeSingleDijkstraBenchmark(file, iterations, graph, writer, false);
+                Parameters::structure = Parameters::Structures::allStructures;
+                break;
+            case Parameters::Structures::incidenceMatrix:
+                executeSingleDijkstraBenchmark(file, iterations, graph, writer, true);
+                break;
+            case Parameters::Structures::adjacencyList:
+                executeSingleDijkstraBenchmark(file, iterations, graph, writer, false);
+                break;
+            default:
+                std::cerr << "Error: unknown structure!" << std::endl;
+        }
+    }
+
+
+    void executeSingleBellmanFordBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
+                                           bool useMatrix) {
         long long sum = 0;
         long long minTime = LLONG_MAX;
         long long maxTime = LLONG_MIN;
 
+        std::string structName = useMatrix ? "Macierz Incydencji" : "Lista Nastepnikow";
+        file << "# Algorytm: Bellman-Ford | Badana struktura: " << structName << "\n";
+
+        Parameters::problem = Parameters::Problems::sp;
+        Parameters::algorithm = Parameters::Algorithms::bellmanFord;
+        Parameters::structure = useMatrix
+                                    ? Parameters::Structures::incidenceMatrix
+                                    : Parameters::Structures::adjacencyList;
+
         for (int i = 0; i < iterations; i++) {
             auto start = std::chrono::high_resolution_clock::now();
-            Graph* bgraph = BellmanFordAlgorithm::BellmanFord(graph, Parameters::vertexStart, Parameters::vertexEnd);
+
+            Graph *bgraph = BellmanFordAlgorithm::bellmanFord(
+                graph, Parameters::vertexStart, Parameters::vertexEnd, useMatrix);
+
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
@@ -138,108 +238,173 @@ private:
             delete bgraph;
             if (duration < minTime) minTime = duration;
             if (duration > maxTime) maxTime = duration;
-            writer.writeSingleIteration(file, iterations, duration);
+
+            writer.writeSingleIteration(file, i + 1, duration);
         }
-        long long averageb = sum / iterations;
-        writer.writeSummary(file, averageb, minTime, maxTime);
+        writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
-    void runSpBenchmark(std::ofstream& file, int iterations, Graph& graph) {
-        FileWriter writer;
-
-        switch (Parameters::algorithm) {
-            case Parameters::Algorithms::dijkstra:
-                benchmarkDijkstra(file, iterations, graph, writer);
+    void benchmarkBellmanFord(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer) {
+        switch (Parameters::structure) {
+            case Parameters::Structures::allStructures:
+                executeSingleBellmanFordBenchmark(file, iterations, graph, writer, true);
+                executeSingleBellmanFordBenchmark(file, iterations, graph, writer, false);
+                Parameters::structure = Parameters::Structures::allStructures;
                 break;
-            case Parameters::Algorithms::bellmanFord:
-                benchmarkBellmanFord(file, iterations, graph, writer);
+            case Parameters::Structures::incidenceMatrix:
+                executeSingleBellmanFordBenchmark(file, iterations, graph, writer, true);
                 break;
-            case Parameters::Algorithms::allAlgorithms:
-                std::cout << "Running all Shortest Path algorithms..." << std::endl;
-                Parameters::algorithm = Parameters::Algorithms::dijkstra;
-                benchmarkDijkstra(file, iterations, graph, writer);
-                
-                Parameters::algorithm = Parameters::Algorithms::bellmanFord;
-                benchmarkBellmanFord(file, iterations, graph, writer);
-                
-                Parameters::algorithm = Parameters::Algorithms::allAlgorithms;
+            case Parameters::Structures::adjacencyList:
+                executeSingleBellmanFordBenchmark(file, iterations, graph, writer, false);
                 break;
             default:
-                std::cerr << "Error: Unsupported algorithm for Shortest Path!" << std::endl;
+                std::cerr << "Error: unknown structure!" << std::endl;
         }
     }
 
-    void runMfBenchmark(std::ofstream& file, int iterations, Graph& graph) {
-        FileWriter writer;
+
+    void executeSingleMfBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
+                                  bool useMatrix) {
         long long sum = 0;
         long long minTime = LLONG_MAX;
         long long maxTime = LLONG_MIN;
 
+        std::string structName = useMatrix ? "Macierz Incydencji" : "Lista Nastepnikow";
+        file << "# Algorytm: Ford-Fulkerson | Badana struktura: " << structName << "\n";
+
+        Parameters::problem = Parameters::Problems::mf;
+        Parameters::algorithm = Parameters::Algorithms::fordFulkerson;
+        Parameters::structure = useMatrix
+                                    ? Parameters::Structures::incidenceMatrix
+                                    : Parameters::Structures::adjacencyList;
+
         for (int i = 0; i < iterations; i++) {
-            int maxFlow = 0;
             auto start = std::chrono::high_resolution_clock::now();
-            Graph* dgraph = FordFulkersonAlgorithm::fordFulkerson(graph, Parameters::vertexStart, Parameters::vertexEnd, maxFlow);
+
+            int maxFlow = 0;
+            Graph *fgraph = FordFulkersonAlgorithm::fordFulkerson(
+                graph, Parameters::vertexStart, Parameters::vertexEnd, maxFlow, useMatrix);
+
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
             sum += duration;
-            delete dgraph;
+            delete fgraph;
             if (duration < minTime) minTime = duration;
             if (duration > maxTime) maxTime = duration;
-            writer.writeSingleIteration(file, iterations, duration);
+
+            writer.writeSingleIteration(file, i + 1, duration);
         }
-        long long average = sum / iterations;
-        writer.writeSummary(file, average, minTime, maxTime);
+        writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
-    void runMstSingleFile(std::string& input, std::string& output) {
+    void runMfBenchmark(std::ofstream &file, int iterations, Graph &graph) {
+        FileWriter writer;
+        switch (Parameters::structure) {
+            case Parameters::Structures::allStructures:
+                executeSingleMfBenchmark(file, iterations, graph, writer, true);
+                executeSingleMfBenchmark(file, iterations, graph, writer, false);
+                Parameters::structure = Parameters::Structures::allStructures;
+                break;
+            case Parameters::Structures::incidenceMatrix:
+                executeSingleMfBenchmark(file, iterations, graph, writer, true);
+                break;
+            case Parameters::Structures::adjacencyList:
+                executeSingleMfBenchmark(file, iterations, graph, writer, false);
+                break;
+            default:
+                std::cerr << "Error: unknown structure!" << std::endl;
+        }
+    }
+
+    void runMstBenchmark(std::ofstream &file, int iterations, Graph &graph) {
+        FileWriter writer;
+        switch (Parameters::algorithm) {
+            case Parameters::Algorithms::kruskal: benchmarkKruskal(file, iterations, graph, writer);
+                break;
+            case Parameters::Algorithms::prim: benchmarkPrim(file, iterations, graph, writer);
+                break;
+            case Parameters::Algorithms::allAlgorithms:
+                benchmarkKruskal(file, iterations, graph, writer);
+                benchmarkPrim(file, iterations, graph, writer);
+                Parameters::algorithm = Parameters::Algorithms::allAlgorithms;
+                break;
+            default: std::cerr << "Error: Unsupported algorithm for MST!" << std::endl;
+        }
+    }
+
+    void runSpBenchmark(std::ofstream &file, int iterations, Graph &graph) {
+        FileWriter writer;
+        switch (Parameters::algorithm) {
+            case Parameters::Algorithms::dijkstra: benchmarkDijkstra(file, iterations, graph, writer);
+                break;
+            case Parameters::Algorithms::bellmanFord: benchmarkBellmanFord(file, iterations, graph, writer);
+                break;
+            case Parameters::Algorithms::allAlgorithms:
+                benchmarkDijkstra(file, iterations, graph, writer);
+                benchmarkBellmanFord(file, iterations, graph, writer);
+                Parameters::algorithm = Parameters::Algorithms::allAlgorithms;
+                break;
+            default: std::cerr << "Error: Unsupported algorithm for Shortest Path!" << std::endl;
+        }
+    }
+
+    void loadEdgesSingleFile(Graph &graph, SinglyLinkedList<Edge> &edgeList) {
+        if (Parameters::structure == Parameters::Structures::incidenceMatrix) {
+            graph.readMatrixToEdgeList(edgeList);
+        } else {
+            graph.readAdjacencyToEdgeList(edgeList);
+        }
+    }
+
+    void runMstSingleFile(std::string &input, std::string &output) {
         FileReader reader;
         FileWriter writer;
-        Graph* graph = reader.readToGraph(input, false);
-        int mst;
+        Graph *graph = reader.readToGraph(input, false);
+        SinglyLinkedList<Edge> edgeList;
+
+        loadEdgesSingleFile(*graph, edgeList);
+
         switch (Parameters::algorithm) {
             case Parameters::Algorithms::prim: {
-                Graph* pGraph = PrimAlgorithm::prim(*graph);
-                mst = pGraph->getTotalWeight();
-                writer.writeFromGraph(output, graph, pGraph, mst);
+                Graph *pGraph = PrimAlgorithm::prim(graph->getVertexCount(), edgeList);
+                writer.writeFromGraph(output, graph, pGraph, pGraph->getTotalWeight());
                 delete pGraph;
                 break;
             }
             case Parameters::Algorithms::kruskal: {
-                Graph* kGraph = KruskalAlgorithm::kruskal(*graph);
-                mst = kGraph->getTotalWeight();
-                writer.writeFromGraph(output, graph, kGraph, mst);
+                Graph *kGraph = KruskalAlgorithm::kruskal(graph->getVertexCount(), edgeList);
+                writer.writeFromGraph(output, graph, kGraph, kGraph->getTotalWeight());
                 delete kGraph;
                 break;
             }
-            default:
-                std::cerr << "Error: Single file mode doesn't support 'allAlgorithms'!" << std::endl;
+            default: std::cerr << "Error: Single file mode doesn't support 'allAlgorithms'!" << std::endl;
         }
         delete graph;
     }
 
-    void runSpSingleFile(std::string& input, std::string& output) {
+    void runSpSingleFile(std::string &input, std::string &output) {
         FileWriter writer;
         FileReader reader;
-        Graph* graph = reader.readToGraph(input, true);
-        int sp;
+        Graph *graph = reader.readToGraph(input, true);
+        bool useMatrix = (Parameters::structure == Parameters::Structures::incidenceMatrix);
+
         switch (Parameters::algorithm) {
             case Parameters::Algorithms::dijkstra: {
-                Graph* dGraph = DijkstraAlgorithm::dijkstraAlgorithm(*graph, Parameters::vertexStart, Parameters::vertexEnd);
-                sp = dGraph->getTotalWeight();
-                writer.writeFromGraph(output, graph, dGraph, sp);
+                Graph *dGraph = DijkstraAlgorithm::dijkstra(
+                    *graph, Parameters::vertexStart, Parameters::vertexEnd, useMatrix);
+                writer.writeFromGraph(output, graph, dGraph, dGraph->getTotalWeight());
                 delete dGraph;
                 break;
             }
             case Parameters::Algorithms::bellmanFord: {
-                Graph* bGraph = BellmanFordAlgorithm::BellmanFord(*graph, Parameters::vertexStart, Parameters::vertexEnd);
-                sp = bGraph->getTotalWeight();
-                writer.writeFromGraph(output, graph, bGraph, sp);
+                Graph *bGraph = BellmanFordAlgorithm::bellmanFord(
+                    *graph, Parameters::vertexStart, Parameters::vertexEnd, useMatrix);
+                writer.writeFromGraph(output, graph, bGraph, bGraph->getTotalWeight());
                 delete bGraph;
                 break;
             }
-            default:
-                std::cerr << "Error: Single file mode doesn't support 'allAlgorithms'!" << std::endl;
+            default: std::cerr << "Error: Single file mode doesn't support 'allAlgorithms'!" << std::endl;
         }
         delete graph;
     }
@@ -253,17 +418,21 @@ private:
 
         switch (Parameters::problem) {
             case Parameters::Problems::mf: {
-                Graph* graph = reader.readToGraph(inFile, true);
+                Graph *graph = reader.readToGraph(inFile, true);
+                bool useMatrix = (Parameters::structure == Parameters::Structures::incidenceMatrix);
+
                 int maxFlow = 0;
-                Graph* fGraph = FordFulkersonAlgorithm::fordFulkerson(
-                    *graph, Parameters::vertexStart, Parameters::vertexEnd, maxFlow);
+                Graph *fGraph = FordFulkersonAlgorithm::fordFulkerson(
+                    *graph, Parameters::vertexStart, Parameters::vertexEnd, maxFlow, useMatrix);
                 writer.writeFromGraph(outFile, graph, fGraph, maxFlow);
                 delete fGraph;
                 delete graph;
                 break;
             }
-            case Parameters::Problems::mst: runMstSingleFile(inFile, outFile); break;
-            case Parameters::Problems::sp: runSpSingleFile(inFile, outFile); break;
+            case Parameters::Problems::mst: runMstSingleFile(inFile, outFile);
+                break;
+            case Parameters::Problems::sp: runSpSingleFile(inFile, outFile);
+                break;
             default: std::cerr << "Error: Unsupported problem type!" << std::endl;
         }
     }
@@ -279,13 +448,16 @@ private:
         }
         int vertexCount = Parameters::vertexCount;
         int iterations = Parameters::iterations;
-        Graph* dgraph = GenerateGraph::generateGraph(vertexCount, true, Parameters::density);
-        Graph* ndgraph = GenerateGraph::generateGraph(vertexCount, false, Parameters::density);
+        Graph *dgraph = GenerateGraph::generateGraph(vertexCount, true, Parameters::density);
+        Graph *ndgraph = GenerateGraph::generateGraph(vertexCount, false, Parameters::density);
 
         switch (Parameters::problem) {
-            case Parameters::Problems::mf: runMfBenchmark(file, iterations, *dgraph); break;
-            case Parameters::Problems::mst: runMstBenchmark(file, iterations, *ndgraph); break;
-            case Parameters::Problems::sp: runSpBenchmark(file, iterations, *dgraph); break;
+            case Parameters::Problems::mf: runMfBenchmark(file, iterations, *dgraph);
+                break;
+            case Parameters::Problems::mst: runMstBenchmark(file, iterations, *ndgraph);
+                break;
+            case Parameters::Problems::sp: runSpBenchmark(file, iterations, *dgraph);
+                break;
             default: std::cerr << "Error: Unsupported problem type!" << std::endl;
         }
         delete dgraph;

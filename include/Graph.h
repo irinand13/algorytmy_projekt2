@@ -6,6 +6,8 @@
 #define GRAPH_H
 #include "Array.h"
 #include "SinglyLinkedList.h"
+#include <iostream>
+#include <stdexcept>
 
 //Reprezentacja krawędzi
 struct Edge {
@@ -21,7 +23,6 @@ struct Edge {
         this->weight = weight;
     }
 
-
     bool operator<(const Edge& other) const {
         return weight < other.weight;
     }
@@ -29,9 +30,7 @@ struct Edge {
     bool operator>(const Edge& other) const {
         return weight > other.weight;
     }
-
 };
-
 
 //Reprezentacja wierzchołka
 struct Vertex {
@@ -45,13 +44,12 @@ struct Vertex {
 
     Vertex(int id, bool colored) {
         this->id = id;
-        this->colored= colored;
+        this->colored = colored;
     }
 
     void setColored(bool colored) {
-        this->colored= colored;
+        this->colored = colored;
     }
-
 };
 
 struct Neighbor {
@@ -78,10 +76,7 @@ class Graph {
     SinglyLinkedList<Neighbor>* adjacencyList;
     Array<Array<int>> incidencyMatrix;
 
-
 public:
-    // inicjalizacja grafu
-    // tworzy listę ora
     explicit Graph(int n, bool directed, int maxEdgeCount) {
         this->vertexCount = n;
         this->maxEdgeCount = maxEdgeCount;
@@ -89,28 +84,21 @@ public:
         this->totalWeight = 0;
         this->directed = directed;
 
-
         vertices = new Vertex[vertexCount];
-
         for (int i = 0; i < vertexCount; i++) {
             vertices[i] = Vertex(i, false);
         }
 
-        //reprezentacja listowa
         adjacencyList = new SinglyLinkedList<Neighbor>[vertexCount];
-
-        // reprezentacja macierzowa
         incidencyMatrix = Array<Array<int>>(vertexCount);
 
         for (int i = 0; i < vertexCount; i++) {
             incidencyMatrix[i] = Array<int>(maxEdgeCount);
-
             for (int j = 0; j < maxEdgeCount; j++) {
                 incidencyMatrix[i][j] = 0;
             }
         }
     }
-
 
     ~Graph() {
         delete[] adjacencyList;
@@ -122,24 +110,19 @@ public:
     Graph(Graph&& graph) = delete;
     Graph& operator=(Graph&& graph) = delete;
 
-    //Metoda dodawania nowej krawędzi
-    // Dodaje krawiędź do listy oraz do macierzy incydencji
     void addEdge(Vertex& u, Vertex& v, int weight) {
-
-        if (weight < 0) throw std::invalid_argument("weight cannot be negative");
-
+        if (weight <= 0) throw std::invalid_argument("weight must be positive for this representation");
         if (hasEdge(u.id, v.id)) throw std::invalid_argument("edge already exists");
-
         if (edgeCount >= maxEdgeCount) throw std::out_of_range("too many edges");
 
         adjacencyList[u.id].push({v, weight});
 
         if (directed) {
-            incidencyMatrix[u.id][edgeCount] = 1;
-            incidencyMatrix[v.id][edgeCount] = -1;
+            incidencyMatrix[u.id][edgeCount] = weight;       // Wychodząca: dodatnia waga
+            incidencyMatrix[v.id][edgeCount] = -weight;      // Wchodząca: ujemna waga
         } else {
-            incidencyMatrix[u.id][edgeCount] = 1;
-            incidencyMatrix[v.id][edgeCount] = 1;
+            incidencyMatrix[u.id][edgeCount] = weight;       // Nieskierowana: obie dodatnie
+            incidencyMatrix[v.id][edgeCount] = weight;
         }
 
         totalWeight += weight;
@@ -150,48 +133,79 @@ public:
         }
     }
 
-
-    void readToEdgeList(SinglyLinkedList<Edge>& list) {
+    //Odczyt z listy sąsiedztwa do listy krawędzi
+    void readAdjacencyToEdgeList(SinglyLinkedList<Edge>& list) {
         for (int i = 0; i < vertexCount; i++) {
-
-            SinglyLinkedList<Neighbor>::Node* current = adjacencyList[i].getHead();
+            typename SinglyLinkedList<Neighbor>::Node* current = adjacencyList[i].getHead();
             while (current != nullptr) {
                 if (directed) {
-                    int from = i;
-                    int to = current->data.to.id;
-                    int weight = current->data.weight;
-                    list.push(Edge(from, to, weight));
-                    current = current->next;
+                    list.push(Edge(i, current->data.to.id, current->data.weight));
                 } else {
+                    // Dla nieskierowanego bierzemy krawędź tylko raz (zapobiega duplikatom)
                     if (i < current->data.to.id) {
-                        int from = i;
-                        int to = current->data.to.id;
-                        int weight = current->data.weight;
-                        list.push(Edge(from, to, weight));
+                        list.push(Edge(i, current->data.to.id, current->data.weight));
                     }
-                    current = current->next;
+                }
+                current = current->next;
+            }
+        }
+    }
+
+  //Odczyt z macierzy incydencji do listy krawędzi
+    void readMatrixToEdgeList(SinglyLinkedList<Edge>& list) {
+        // Przechodzimy po kolumnach
+        for (int col = 0; col < edgeCount; col++) {
+            int from = -1;
+            int to = -1;
+            int weight = 0;
+
+            if (directed) {
+                for (int row = 0; row < vertexCount; row++) {
+                    int val = incidencyMatrix[row][col];
+                    if (val > 0) {
+                        from = row;
+                        weight = val; // waga jest dodatnia przy wierzchołku startowym
+                    } else if (val < 0) {
+                        to = row;
+                    }
+                }
+                if (from != -1 && to != -1) {
+                    list.push(Edge(from, to, weight));
+                }
+            } else {
+                // Dla grafu nieskierowanego szukamy dwóch wierzchołków z tą samą wagą
+                for (int row = 0; row < vertexCount; row++) {
+                    int val = incidencyMatrix[row][col];
+                    if (val > 0) {
+                        if (from == -1) {
+                            from = row;
+                            weight = val;
+                        } else {
+                            to = row;
+                        }
+                    }
+                }
+                if (from != -1 && to != -1) {
+                    list.push(Edge(from, to, weight));
                 }
             }
         }
     }
 
+    int getVertexCount() const { return vertexCount; }
+    int getEdgeCount() const { return edgeCount; }
+    Vertex& getVertex(int i) { return vertices[i]; }
+    bool isDirected() const { return directed; }
+    int getTotalWeight() const { return totalWeight; }
 
-
-    int  getVertexCount() const {return vertexCount;}
-    int getEdgeCount() const {return edgeCount;}
-    Vertex& getVertex(int i) {return vertices[i];}
-    bool isDirected () const {return directed;}
-    int getTotalWeight() const {return totalWeight;}
-
-    SinglyLinkedList<Neighbor>::Node* getAdjacencyList(int i) {
+    typename SinglyLinkedList<Neighbor>::Node* getAdjacencyList(int i) {
         return adjacencyList[i].getHead();
     }
 
-    //Wypisuje listę sąsiedztwa dla grafu
     void print() {
         for (int i = 0; i < vertexCount; i++) {
             std::cout << i << ": ";
-            SinglyLinkedList<Neighbor>::Node* current = adjacencyList[i].getHead();
+            typename SinglyLinkedList<Neighbor>::Node* current = adjacencyList[i].getHead();
             while (current != nullptr) {
                 std::cout << "-> " << current->data.to.id
                           << " (w:" << current->data.weight << ") ";
@@ -201,9 +215,8 @@ public:
         }
     }
 
-    //sprawdza czy krawędź już istnieje
     bool hasEdge(int from, int to) {
-        SinglyLinkedList<Neighbor>::Node* current = adjacencyList[from].getHead();
+        typename SinglyLinkedList<Neighbor>::Node* current = adjacencyList[from].getHead();
         while (current != nullptr) {
             if (current->data.to.id == to) return true;
             current = current->next;
@@ -211,13 +224,9 @@ public:
         return false;
     }
 
-    //sprawdza czy graf jest spójny
     bool isConnected() {
         for (int i = 0; i < vertexCount; i++) vertices[i].colored = false;
-
         dfs(0);
-
-        // sprawdza czy wszystkie wierzchołki są "pokolorowane"
         bool connected = true;
         for (int i = 0; i < vertexCount; i++) {
             if (!vertices[i].colored) {
@@ -225,21 +234,17 @@ public:
                 break;
             }
         }
-
-        //resetujemy kolory
         for (int i = 0; i < vertexCount; i++) vertices[i].colored = false;
         return connected;
     }
 
-
-    //metoda DFS do przeszukiwania grafu
     void dfs(int vertex) {
         vertices[vertex].colored = true;
-        SinglyLinkedList<Neighbor>::Node* current = adjacencyList[vertex].getHead();
+        typename SinglyLinkedList<Neighbor>::Node* current = adjacencyList[vertex].getHead();
         while (current != nullptr) {
             int neighbor = current->data.to.id;
             if (!vertices[neighbor].colored) {
-                dfs(neighbor); //rekurencja
+                dfs(neighbor);
             }
             current = current->next;
         }
@@ -248,7 +253,6 @@ public:
     int getMatrixValue(int row, int col) {
         return incidencyMatrix[row][col];
     }
-
-
 };
+
 #endif //GRAPH_H

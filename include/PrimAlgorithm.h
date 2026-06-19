@@ -6,6 +6,7 @@
 #define PRIMALGORITHM_H
 #include "Graph.h"
 #include "QuickSort.h"
+#include <iostream>
 
 namespace PrimAlgorithm {
 
@@ -20,7 +21,7 @@ namespace PrimAlgorithm {
             return;
         }
 
-        //Przesukiwanie miejsca gdzie wstawić krawędź, jeżeli waga jest większa od 1 elementu kolejki
+        //przesukiwanie miejsca gdzie wstawić krawędź
         SinglyLinkedList<Edge>::Node* current = queue.getHead();
         while (current->next != nullptr && current->next->data.weight <= edge.weight) {
             current = current->next;
@@ -34,25 +35,30 @@ namespace PrimAlgorithm {
 
 
     //Implementacja algorytmu Prima
-    //Znajduje minimalne drzewo rozpinające grafu MST
-    Graph *prim(Graph& graph) {
+    Graph *prim(int vertexCount, SinglyLinkedList<Edge>& allEdges) {
 
-        if (graph.isDirected()) {
-            std::cout << "Graph is a directed graph." <<  std::endl;
-            return nullptr;
+        // Tablica do śledzenia pokolorowanych wierzchołków
+        bool* colored = new bool[vertexCount];
+        for (int i = 0; i < vertexCount; i++) {
+            colored[i] = false;
         }
 
-        int n = graph.getVertexCount();
         SinglyLinkedList<Edge> queue;
         //tworzenie grafu mst do przechowywania wyniku
-        auto* mst = new Graph(n, false, n-1);
+        auto* mst = new Graph(vertexCount, false, vertexCount - 1);
 
 
         //zaczyna od wierzchołka 0
-        graph.getVertex(0).setColored(true);
-        SinglyLinkedList<Neighbor>::Node* start = graph.getAdjacencyList(0);
+        colored[0] = true;
+
+        // Przeszukuje przekazaną listę krawędzi w poszukiwaniu sąsiadów wierzchołka
+        SinglyLinkedList<Edge>::Node* start = allEdges.getHead();
         while (start != nullptr) {
-            insertSorted(queue, Edge(0, start->data.to.id, start->data.weight));
+            if (start->data.from == 0) {
+                insertSorted(queue, start->data);
+            } else if (start->data.to == 0) {
+                insertSorted(queue, Edge(0, start->data.from, start->data.weight));
+            }
             start = start->next;
         }
 
@@ -65,32 +71,37 @@ namespace PrimAlgorithm {
 
             //Sprawdzenie cyklu
             //Jeżeli wierzchołek krawędzi jest pokolorowany wraca na początek while
-            if(graph.getVertex(best.to).colored) continue;
+            if (colored[best.to]) continue;
 
 
             //Dołączenie nowego wierzchołka do MST
-            graph.getVertex(best.to).setColored(true);
-            Vertex& vu = graph.getVertex(best.from);
-            Vertex& vv = graph.getVertex(best.to);
-            mst->addEdge(vu,vv, best.weight);
+            colored[best.to] = true;
+            Vertex& vu = mst->getVertex(best.from);
+            Vertex& vv = mst->getVertex(best.to);
+            mst->addEdge(vu, vv, best.weight);
 
 
-            //Dodawanie "sąsiadów" nowego wierzchołka
-            SinglyLinkedList<Neighbor>::Node* adj = graph.getAdjacencyList(best.to);
+            //Dodawanie "sąsiadów" nowego wierzchołka z przekazanej listy krawędzi
+            SinglyLinkedList<Edge>::Node* adj = allEdges.getHead();
             while (adj != nullptr) {
-                //Sprawdzenie czy wierzchołki nie były już odwiedzone
-                if (!graph.getVertex(adj->data.to.id).colored) {
-                    insertSorted(queue, Edge(best.to, adj->data.to.id, adj->data.weight));
+                int u = adj->data.from;
+                int v = adj->data.to;
+                int w = adj->data.weight;
+
+                //Sprawdza czy wierzchołki nie były już odwiedzone
+                if (u == best.to && !colored[v]) {
+                    insertSorted(queue, Edge(u, v, w));
+                } else if (v == best.to && !colored[u]) {
+                    insertSorted(queue, Edge(v, u, w));
                 }
                 adj = adj->next;
             }
         }
 
-        for (int i = 0; i < n; i++) {
-            graph.getVertex(i).setColored(false);
-        }
+        int finalEdgeCount = mst->getEdgeCount();
+        delete[] colored; // Czyszczenie pamięci tablicy
 
-        if (mst->getEdgeCount() != n - 1) {
+        if (finalEdgeCount != vertexCount - 1) {
             delete mst;
             std::cout << "Graph is not connected!" << std::endl;
             return nullptr;

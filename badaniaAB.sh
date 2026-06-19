@@ -5,10 +5,10 @@ GLOWNY_FOLDER="Wyniki_Benchmarkow"
 
 N_IT="50"
 GESTOSC_STALA_A="50"
-ROZMIAR_STALY_B="200"
+ROZMIAR_STALY_B="60"
 
 ROZMIARY_A=(30 60 90 120 150)
-GESTOSCI_B=(25 50 75 99)
+GESTOSCI_B=(50 75 99)
 
 
 PROBLEMY=(0 1 2)
@@ -30,7 +30,6 @@ uruchom_benchmark() {
     fi
     local res_file="$path/$plik_wynikowy"
 
-    # Definiujemy zmienną na początku funkcji - teraz będzie widoczna wszędzie poniżej!
     local wierzcholek_koncowy=$((wierzcholki - 1))
 
     echo -e "\e[36mRunner (n=$N_IT) -> ${subfolder} | Prob=$problem_num | V=$wierzcholki | D=$gestosc%\e[0m"

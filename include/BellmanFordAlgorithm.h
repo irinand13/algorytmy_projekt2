@@ -5,22 +5,18 @@
 #ifndef BELLMANFORDSALGORITHM_H
 #define BELLMANFORDSALGORITHM_H
 #include "Graph.h"
+#include <climits>
+#include <iostream>
 
 namespace BellmanFordAlgorithm {
-    Graph* BellmanFord(Graph &graph, int from, int to) {
-
-        if(!graph.isDirected()) {
-            std::cout<<"Graph is not directed"<<std::endl;
-            return nullptr;
-        }
-
+    // Imlementacja algorytmu Bellmana-Forda
+    Graph* bellmanFord(Graph &graph, int from, int to, bool useMatrix) {
         int n = graph.getVertexCount();
 
-        int* dist = new int[n]; //tablica odległości
-        int* visited = new int[n]; //tablica poprzedników
+        int* dist = new int[n]; // tablica odległości
+        int* visited = new int[n]; // tablica poprzedników
 
-
-        //ustawie odległości na maksimum i wierzchołki odwiedzone na -1
+        // ustawia odległości na maksimum i wierzchołków odwiedzonych na -1
         for(int i = 0; i < n; i++) {
             dist[i] = INT_MAX;
             visited[i] = -1;
@@ -28,30 +24,52 @@ namespace BellmanFordAlgorithm {
 
         dist[from] = 0;
 
-        //przechodzi przez wszystkie krawędzi
+        //relaksacja w zależności od wybranej struktury
         for(int i = 0; i < n - 1; i++) {
+            
+            if (useMatrix) {
+                // reklasacja dla macierzy
+                int edgeCount = graph.getEdgeCount();
+                // przeechodzi przez koluny krawędzi
+                for (int e = 0; e < edgeCount; e++) {
+                    int u = -1, v = -1;
+                    int w = 0;
 
-            //przechodzi przez każdy wierzchołek
-            for(int u = 0; u < n; u++) {
-                if(dist[u] == INT_MAX) continue;
+                    for (int row = 0; row < n; row++) {
+                        int val = graph.getMatrixValue(row, e);
+                        if (val > 0) {
+                            u = row;
+                            w = val;
+                        } else if (val < 0) {
+                            v = row;
+                        }
+                    }
 
-                SinglyLinkedList<Neighbor>::Node* start = graph.getAdjacencyList(u);
-                while (start != nullptr) {
-                    int v = start->data.to.id;
-                    int w = start->data.weight;
-
-                    //porównuje sumę wag wybranej krawędzi z wagą zapisanej w tablicy
-                    //przypisanego do tego samego wierzchołka
-                    if (dist[u] + w < dist[v]) {
+                    // relaksacja krawędzi
+                    if (u != -1 && v != -1 && dist[u] != INT_MAX && dist[u] + w < dist[v]) {
                         dist[v] = dist[u] + w;
                         visited[v] = u;
                     }
-                    start = start->next;
                 }
+            } else {
+                //relaksacja dla listy sąsiedztwa
+                for (int u = 0; u < n; u++) {
+                    SinglyLinkedList<Neighbor>::Node* start = graph.getAdjacencyList(u);
+                    while (start != nullptr) {
+                        int v = start->data.to.id;
+                        int w = start->data.weight;
 
+                        if (dist[u] != INT_MAX && dist[u] + w < dist[v]) {
+                            dist[v] = dist[u] + w;
+                            visited[v] = u;
+                        }
+                        start = start->next;
+                    }
+                }
             }
         }
 
+        // jeśli cel jest nieosiągalny
         if (dist[to] == INT_MAX) {
             delete[] dist;
             delete[] visited;
@@ -63,7 +81,9 @@ namespace BellmanFordAlgorithm {
         int current = to;
         while (current != from) {
             int prev = visited[current];
-            path->addEdge(graph.getVertex(prev), graph.getVertex(current),dist[current] - dist[prev]);
+            Vertex& vPrev = graph.getVertex(prev);
+            Vertex& vCurrent = graph.getVertex(current);
+            path->addEdge(vPrev, vCurrent, dist[current] - dist[prev]);
             current = prev;
         }
 
