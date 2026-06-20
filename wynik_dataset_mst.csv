@@ -1,0 +1,9 @@
+algorytm;struktura;iteracja;czas_us
+Kruskal;MacierzIncydencji;1;1113002
+Kruskal;ListaSasiedztwa;1;259178
+Prim;MacierzIncydencji;1;2507772
+Prim;ListaSasiedztwa;1;1189089
+BoostKruskal;MacierzIncydencji;1;15934
+BoostKruskal;ListaSasiedztwa;1;15300
+BoostPrim;MacierzIncydencji;1;9307
+BoostPrim;ListaSasiedztwa;1;9024
