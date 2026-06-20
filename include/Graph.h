@@ -111,7 +111,7 @@ public:
     Graph& operator=(Graph&& graph) = delete;
 
     void addEdge(Vertex& u, Vertex& v, int weight) {
-        if (weight <= 0) throw std::invalid_argument("weight must be positive for this representation");
+        if(weight <= 0) throw std::invalid_argument("Graph::addEdge(): weight must be positive");
         if (hasEdge(u.id, v.id)) throw std::invalid_argument("edge already exists");
         if (edgeCount >= maxEdgeCount) throw std::out_of_range("too many edges");
 
