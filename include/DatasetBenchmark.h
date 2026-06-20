@@ -63,8 +63,7 @@ private:
                   << "  MAX: " << maxT << " us" << std::endl;
     }
 
-    static void benchmarkKruskal(std::ofstream& file, Graph& graph,
-                                  int iterations, bool useMatrix) {
+    static void benchmarkKruskal(std::ofstream& file, Graph& graph, int iterations, bool useMatrix) {
         std::string struc = useMatrix ? "MacierzIncydencji" : "ListaSasiedztwa";
         long long sum = 0, minT = LLONG_MAX, maxT = LLONG_MIN;
 
@@ -113,8 +112,8 @@ private:
         writeSummary(file, "Prim", struc, sum / iterations, minT, maxT);
     }
 
-    static void benchmarkBoostKruskal(std::ofstream& file, Graph& graph,
-                                       int iterations, bool useMatrix) {
+
+    static void benchmarkBoostKruskal(std::ofstream& file, Graph& graph, int iterations, bool useMatrix) {
         std::string struc = useMatrix ? "MacierzIncydencji" : "ListaSasiedztwa";
         long long sum = 0, minT = LLONG_MAX, maxT = LLONG_MIN;
 

@@ -111,7 +111,7 @@ public:
              << Parameters::vertexCount << ";"
              << Parameters::density << ";"
              << iterations << ";"
-             << duration << "\n"; // POPRAWKA: Usunięto tekst "SINGLE;" powodujący rozjechanie kolumn CSV
+             << duration << "\n";
     }
 
     inline void writeSummary(std::ofstream& file, long long avg, long long min, long long max) {

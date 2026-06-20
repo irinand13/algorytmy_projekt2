@@ -69,7 +69,7 @@ namespace BellmanFordAlgorithm {
             }
         }
 
-        // jeśli cel jest nieosiągalny
+        //jeżeli wartość do wiezrchołku końcowego jest nieskończonnością, to nie ścieżki do tego wierzchołka
         if (dist[to] == INT_MAX) {
             delete[] dist;
             delete[] visited;
@@ -78,6 +78,7 @@ namespace BellmanFordAlgorithm {
 
         auto* path = new Graph(n, true, n - 1);
 
+        //odtwaranie ścieżki
         int current = to;
         while (current != from) {
             int prev = visited[current];

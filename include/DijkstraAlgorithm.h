@@ -106,6 +106,7 @@ namespace DijkstraAlgorithm {
             }
         }
 
+        //jeżeli wartość do wiezrchołku końcowego jest nieskończonnością, to nie ścieżki do tego wierzchołka
         if (dist[to] == INT_MAX) {
             std::cout << "No path from " << from << " to " << to << std::endl;
             delete[] dist;
@@ -116,6 +117,8 @@ namespace DijkstraAlgorithm {
         auto* path = new Graph(n, true, n - 1);
         int current = to;
 
+
+        //odtwarzanie ścieżki
         while (current != from) {
             int prev = visited[current];
             int edgeWeight = dist[current] - dist[prev];
