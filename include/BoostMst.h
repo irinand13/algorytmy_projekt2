@@ -13,7 +13,7 @@ public:
         boost::no_property,
         boost::property<boost::edge_weight_t, int>>;
 
-
+    //wykonanie algorytmu na liście sąsiedztwa
     static BoostGraph fromAdjacency(Graph& graph) {
         BoostGraph g(graph.getVertexCount());
         auto weightMap = boost::get(boost::edge_weight, g);
@@ -32,6 +32,7 @@ public:
         return g;
     }
 
+    //wykonanie algorytmu na macierzy incydencji
     static BoostGraph fromMatrix(Graph& graph) {
         BoostGraph g(graph.getVertexCount());
         auto weightMap = boost::get(boost::edge_weight, g);
@@ -53,12 +54,14 @@ public:
         return g;
     }
 
+    // algorytm Kruskala
     static void kruskal(BoostGraph& g) {
         using ED = boost::graph_traits<BoostGraph>::edge_descriptor;
         std::vector<ED> mst;
         boost::kruskal_minimum_spanning_tree(g, std::back_inserter(mst));
     }
 
+    // algorytm Prima
     static void prim(BoostGraph& g) {
         int n = boost::num_vertices(g);
         using VD = boost::graph_traits<BoostGraph>::vertex_descriptor;

@@ -22,6 +22,7 @@
 
 class Runner {
 public:
+    // uruchamia główny program
     void run() {
         if (Parameters::runMode == Parameters::RunModes::help) {
             Parameters::help();
@@ -35,12 +36,14 @@ public:
     }
 
 private:
+    //czyści listę krawędzi
     void clearEdgeList(SinglyLinkedList<Edge> &edgeList) {
         while (edgeList.getSize() > 0) {
             edgeList.popFront();
         }
     }
 
+    //zmierza działanie algorytmu Kruskala oraz sprawdza, która struktura została wybrana
     void executeSingleKruskalBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
                                        bool useMatrix, SinglyLinkedList<Edge> &edgeList) {
         long long sum = 0;
@@ -79,6 +82,7 @@ private:
         writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
+    //uruchamia Benchmark dla Kruskala
     void benchmarkKruskal(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer) {
         SinglyLinkedList<Edge> edgeList;
         switch (Parameters::structure) {
@@ -99,6 +103,7 @@ private:
     }
 
 
+    //zmierza działanie algorytmu Prima oraz sprawdza, która struktura została wybrana
     void executeSinglePrimBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
                                     bool useMatrix, SinglyLinkedList<Edge> &edgeList) {
         long long sum = 0;
@@ -137,6 +142,7 @@ private:
         writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
+    //uruchamia Benchmark dla Prima
     void benchmarkPrim(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer) {
         SinglyLinkedList<Edge> edgeList;
         switch (Parameters::structure) {
@@ -157,6 +163,7 @@ private:
     }
 
 
+    //zmierza działanie algorytmu Dijkstry oraz sprawdza, która struktura została wybrana
     void executeSingleDijkstraBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
                                         bool useMatrix) {
         long long sum = 0;
@@ -191,6 +198,7 @@ private:
         writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
+    //uruchamia Benchmark dla Dijkstry
     void benchmarkDijkstra(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer) {
         switch (Parameters::structure) {
             case Parameters::Structures::allStructures:
@@ -210,6 +218,7 @@ private:
     }
 
 
+    //zmierza działanie algorytmu Bellmana-Forda oraz sprawdza, która struktura została wybrana
     void executeSingleBellmanFordBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
                                            bool useMatrix) {
         long long sum = 0;
@@ -244,6 +253,8 @@ private:
         writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
+
+    //uruchamia Benchmark dla Bellmana-Forda
     void benchmarkBellmanFord(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer) {
         switch (Parameters::structure) {
             case Parameters::Structures::allStructures:
@@ -263,6 +274,7 @@ private:
     }
 
 
+    //zmierza działanie algorytmu Forda-Fulkersona oraz sprawdza, która struktura została wybrana
     void executeSingleMfBenchmark(std::ofstream &file, int iterations, Graph &graph, FileWriter &writer,
                                   bool useMatrix) {
         long long sum = 0;
@@ -298,6 +310,7 @@ private:
         writer.writeSummary(file, sum / iterations, minTime, maxTime);
     }
 
+    //uruchamia Benchmark dla algorytmu Forda-Fulkersona
     void runMfBenchmark(std::ofstream &file, int iterations, Graph &graph) {
         FileWriter writer;
         switch (Parameters::structure) {
@@ -317,6 +330,7 @@ private:
         }
     }
 
+    //uruchamia Benchmark dla algorytów Kruskala oraz Prima
     void runMstBenchmark(std::ofstream &file, int iterations, Graph &graph) {
         FileWriter writer;
         switch (Parameters::algorithm) {
@@ -333,6 +347,7 @@ private:
         }
     }
 
+    //uruchamia Benchmark dla algorytów Dijkstry oraz Bellmana-Forda
     void runSpBenchmark(std::ofstream &file, int iterations, Graph &graph) {
         FileWriter writer;
         switch (Parameters::algorithm) {
@@ -349,6 +364,7 @@ private:
         }
     }
 
+    //metoda pomocnicza, która odczytuje z macierzy incydencji połączenia do listy krawędzi
     void loadEdgesSingleFile(Graph &graph, SinglyLinkedList<Edge> &edgeList) {
         if (Parameters::structure == Parameters::Structures::incidenceMatrix) {
             graph.readMatrixToEdgeList(edgeList);
@@ -357,6 +373,7 @@ private:
         }
     }
 
+    //tryb SingleFile dla algorytów Kruskala oraz Prima
     void runMstSingleFile(std::string &input, std::string &output) {
         FileReader reader;
         FileWriter writer;
@@ -383,6 +400,7 @@ private:
         delete graph;
     }
 
+    //tryb SingleFile dla algorytów Dijkstry oraz Bellmana-Forda
     void runSpSingleFile(std::string &input, std::string &output) {
         FileWriter writer;
         FileReader reader;
@@ -409,6 +427,7 @@ private:
         delete graph;
     }
 
+    //metoda, która uruchamia SingleFile
     void runSingleFile() {
         FileReader reader;
         FileWriter writer;
@@ -437,6 +456,7 @@ private:
         }
     }
 
+    //metoda, która uruchamia Benchmark
     void runBenchmark() {
         FileWriter writer;
         writer.prepareFile(Parameters::resultsFile);

@@ -19,6 +19,7 @@
 
 class DatasetBenchmark {
 public:
+    //główny program do porównania algorytmów na wybranym datasecie
     static void runMst(const std::string& inputFile,
                        const std::string& outputFile,
                        int iterations = 10) {
@@ -38,11 +39,14 @@ public:
 
         file << "algorytm,struktura,iteracja,czas_us\n";
 
+        //uruchamia algorytmy włąsnej implementacji
         benchmarkKruskal(file, *graph, iterations, true);
         benchmarkKruskal(file, *graph, iterations, false);
         benchmarkPrim(file, *graph, iterations, true);
         benchmarkPrim(file, *graph, iterations, false);
 
+
+        //uruchamia algorytmy biblioteki Boost
         benchmarkBoostKruskal(file, *graph, iterations, true);
         benchmarkBoostKruskal(file, *graph, iterations, false);
         benchmarkBoostPrim(file, *graph, iterations, true);
@@ -54,6 +58,7 @@ public:
     }
 
 private:
+    //zapisuje dane do pliku
     static void writeSummary(std::ofstream& file, const std::string& alg,
                              const std::string& struc, long long avg,
                              long long minT, long long maxT) {
@@ -63,6 +68,7 @@ private:
                   << "  MAX: " << maxT << " us" << std::endl;
     }
 
+    //uruchamia benchmark dla algorytmu Kruskala
     static void benchmarkKruskal(std::ofstream& file, Graph& graph, int iterations, bool useMatrix) {
         std::string struc = useMatrix ? "MacierzIncydencji" : "ListaSasiedztwa";
         long long sum = 0, minT = LLONG_MAX, maxT = LLONG_MIN;
@@ -87,6 +93,7 @@ private:
         writeSummary(file, "Kruskal", struc, sum / iterations, minT, maxT);
     }
 
+    //uruchamia benchmark dla algorytmu Prima
     static void benchmarkPrim(std::ofstream& file, Graph& graph,
                                int iterations, bool useMatrix) {
         std::string struc = useMatrix ? "MacierzIncydencji" : "ListaSasiedztwa";
@@ -112,7 +119,7 @@ private:
         writeSummary(file, "Prim", struc, sum / iterations, minT, maxT);
     }
 
-
+    //uruchamia benchmark dla algorytmu Kruskala biblioteki Boost
     static void benchmarkBoostKruskal(std::ofstream& file, Graph& graph, int iterations, bool useMatrix) {
         std::string struc = useMatrix ? "MacierzIncydencji" : "ListaSasiedztwa";
         long long sum = 0, minT = LLONG_MAX, maxT = LLONG_MIN;
@@ -133,6 +140,7 @@ private:
         writeSummary(file, "BoostKruskal", struc, sum / iterations, minT, maxT);
     }
 
+    //uruchamia benchmark dla algorytmu Prima biblioteki Boost
     static void benchmarkBoostPrim(std::ofstream& file, Graph& graph,
                                     int iterations, bool useMatrix) {
         std::string struc = useMatrix ? "MacierzIncydencji" : "ListaSasiedztwa";
